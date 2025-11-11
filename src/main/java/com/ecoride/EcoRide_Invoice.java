@@ -22,6 +22,9 @@ public class EcoRide_Invoice {
         PRICING.put("Hybrid", new double[]{7500, 150, 60, 0.12});
         PRICING.put("Electric", new double[]{10000, 200, 40, 0.08});
         PRICING.put("Luxury SUV", new double[]{15000, 250, 75, 0.15});
+        PRICING.put("Racing", new double[]{25000, 250, 75, 0.15});
+        PRICING.put("Off road SUV", new double[]{20000, 250, 75, 0.15});
+        PRICING.put("Super luxury", new double[]{35000, 250, 75, 0.15});
     }
 
     // Constructor
@@ -32,8 +35,14 @@ public class EcoRide_Invoice {
 
     // Algorithm: Calculate fees
     private void calculateFees() {
-        String category = booking.getVehicle().getCategory();
-        double[] pricing = PRICING.get(category);
+        String category = booking.getVehicle().getCategory().trim().toLowerCase();
+        double[] pricing = null;
+        for (String key : PRICING.keySet()) {
+            if (key.toLowerCase().equals(category)) {
+                pricing = PRICING.get(key);
+                break;
+            }
+        }
         if (pricing == null) return;
 
         double dailyFee = pricing[0];
