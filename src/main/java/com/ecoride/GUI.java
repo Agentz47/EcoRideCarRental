@@ -208,8 +208,10 @@ public class GUI extends JFrame {
         JPanel buttonsPanel = new JPanel(new FlowLayout());
         JButton makeBookingBtn = new JButton("Make Booking");
         JButton searchBtn = new JButton("Search Bookings");
+        JButton viewBtn = new JButton("View Bookings");
         buttonsPanel.add(makeBookingBtn);
         buttonsPanel.add(searchBtn);
+        buttonsPanel.add(viewBtn);
 
         panel.add(buttonsPanel, BorderLayout.NORTH);
 
@@ -221,6 +223,7 @@ public class GUI extends JFrame {
 
         makeBookingBtn.addActionListener(e -> makeBookingDialog(bookingsArea));
         searchBtn.addActionListener(e -> searchBookingsDialog(bookingsArea));
+        viewBtn.addActionListener(e -> viewBookings(bookingsArea));
 
         return panel;
     }
@@ -412,6 +415,14 @@ public class GUI extends JFrame {
         StringBuilder sb = new StringBuilder("Registered Customers:\n");
         for (EcoRide_Customer c : rentalSystem.getAllCustomers()) {
             sb.append(c.toString()).append("\n");
+        }
+        outputArea.setText(sb.toString());
+    }
+
+    private void viewBookings(JTextArea outputArea) {
+        StringBuilder sb = new StringBuilder("All Bookings:\n");
+        for (EcoRide_Booking b : rentalSystem.getAllBookings()) {
+            sb.append(b.toString()).append("\n");
         }
         outputArea.setText(sb.toString());
     }

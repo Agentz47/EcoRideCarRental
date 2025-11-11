@@ -119,4 +119,8 @@ public class EcoRide_RentalSystem {
     public ArrayList<EcoRide_Customer> getAllCustomers() {
         return new ArrayList<>(customers);
     }
+
+    public ArrayList<EcoRide_Booking> getAllBookings() {
+        return new ArrayList<>(bookings);
+    }
 }
