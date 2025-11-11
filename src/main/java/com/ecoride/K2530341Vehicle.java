@@ -4,7 +4,7 @@ package com.ecoride;
  * Represents a vehicle in the EcoRide Car Rental System.
  * Demonstrates OOP: Encapsulation with private fields and public getters/setters.
  */
-public class EcoRide_Vehicle {
+public class K2530341Vehicle {
     private String carId;
     private String model;
     private String category; // Compact Petrol, Hybrid, Electric, Luxury SUV
@@ -12,7 +12,7 @@ public class EcoRide_Vehicle {
     private String availabilityStatus; // Available, Reserved, Under Maintenance
 
     // Constructor
-    public EcoRide_Vehicle(String carId, String model, String category, double dailyRentalPrice, String availabilityStatus) {
+    public K2530341Vehicle(String carId, String model, String category, double dailyRentalPrice, String availabilityStatus) {
         this.carId = carId;
         this.model = model;
         this.category = category;

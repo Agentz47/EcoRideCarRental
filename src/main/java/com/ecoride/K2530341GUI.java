@@ -7,8 +7,8 @@ import java.awt.event.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
-public class GUI extends JFrame {
-    private EcoRide_RentalSystem rentalSystem;
+public class K2530341GUI extends JFrame {
+    private K2530341RentalSystem rentalSystem;
     private JTextArea outputArea;
     private JTabbedPane tabbedPane;
 
@@ -45,8 +45,8 @@ public class GUI extends JFrame {
         static final Color BTN_NEUTRAL_TEXT = new Color(226, 232, 240);
     }
 
-    public GUI() {
-        rentalSystem = new EcoRide_RentalSystem();
+    public K2530341GUI() {
+        rentalSystem = new K2530341RentalSystem();
         setupModernGUI();
     }
 
@@ -513,7 +513,7 @@ public class GUI extends JFrame {
         JButton add = primaryButton("Add Vehicle");
         add.addActionListener(e -> {
             try {
-                EcoRide_Vehicle v = new EcoRide_Vehicle(
+                K2530341Vehicle v = new K2530341Vehicle(
                         id.getText().trim(), model.getText().trim(), category.getText().trim(),
                         Double.parseDouble(price.getText().trim()), status.getText().trim());
                 rentalSystem.addVehicle(v);
@@ -541,7 +541,7 @@ public class GUI extends JFrame {
 
         JButton add = primaryButton("Register");
         add.addActionListener(e -> {
-            EcoRide_Customer c = new EcoRide_Customer(
+            K2530341Customer c = new K2530341Customer(
                     nic.getText().trim(), name.getText().trim(), contact.getText().trim(), email.getText().trim());
             rentalSystem.registerCustomer(c);
             out.setText("[SUCCESS] Customer registered successfully!\n\n" + c);
@@ -568,8 +568,8 @@ public class GUI extends JFrame {
         JButton book = primaryButton("Create Booking");
         book.addActionListener(e -> {
             try {
-                EcoRide_Customer c = rentalSystem.getCustomer(nic.getText().trim());
-                EcoRide_Vehicle v = rentalSystem.getVehicle(vid.getText().trim());
+                K2530341Customer c = rentalSystem.getCustomer(nic.getText().trim());
+                K2530341Vehicle v = rentalSystem.getVehicle(vid.getText().trim());
                 if (c == null) { warn(d, "Customer not found."); return; }
                 if (v == null) { warn(d, "Vehicle not found."); return; }
 
@@ -577,7 +577,7 @@ public class GUI extends JFrame {
                 LocalDate en = LocalDate.parse(end.getText().trim());
                 int totalKm = Integer.parseInt(km.getText().trim());
 
-                EcoRide_Booking b = new EcoRide_Booking(id.getText().trim(), c, v, s, en, totalKm);
+                K2530341Booking b = new K2530341Booking(id.getText().trim(), c, v, s, en, totalKm);
                 if (rentalSystem.makeBooking(b)) {
                     out.setText("[SUCCESS] Booking successful!\n\n" + b);
                     d.dispose();
@@ -601,7 +601,7 @@ public class GUI extends JFrame {
         if (name != null && !name.trim().isEmpty()) {
             StringBuilder sb = new StringBuilder("SEARCH RESULTS FOR: " + name + "\n");
             sb.append("=".repeat(70)).append("\n\n");
-            for (EcoRide_Booking b : rentalSystem.searchBookingsByName(name)) sb.append(b).append("\n\n");
+            for (K2530341Booking b : rentalSystem.searchBookingsByName(name)) sb.append(b).append("\n\n");
             out.setText(sb.toString());
         }
     }
@@ -623,7 +623,7 @@ public class GUI extends JFrame {
     private void updateVehicleDialog(JTextArea out) {
         String carId = JOptionPane.showInputDialog(this, "Enter Vehicle ID to update:");
         if (carId == null) return;
-        EcoRide_Vehicle existing = rentalSystem.getVehicle(carId);
+        K2530341Vehicle existing = rentalSystem.getVehicle(carId);
         if (existing == null) { warn(this, "Vehicle not found."); return; }
 
         JDialog d = modal("Update Vehicle", 500, 350);
@@ -641,7 +641,7 @@ public class GUI extends JFrame {
         JButton update = primaryButton("Update Vehicle");
         update.addActionListener(e -> {
             try {
-                EcoRide_Vehicle v = new EcoRide_Vehicle(
+                K2530341Vehicle v = new K2530341Vehicle(
                         carId, model.getText().trim(), category.getText().trim(),
                         Double.parseDouble(price.getText().trim()), status.getText().trim());
                 if (rentalSystem.updateVehicle(carId, v)) {
@@ -668,7 +668,7 @@ public class GUI extends JFrame {
     private void updateCustomerDialog(JTextArea out) {
         String nic = JOptionPane.showInputDialog(this, "Enter Customer NIC to update:");
         if (nic == null) return;
-        EcoRide_Customer existing = rentalSystem.getCustomer(nic);
+        K2530341Customer existing = rentalSystem.getCustomer(nic);
         if (existing == null) { warn(this, "Customer not found."); return; }
 
         JDialog d = modal("Update Customer", 500, 330);
@@ -683,7 +683,7 @@ public class GUI extends JFrame {
 
         JButton update = primaryButton("Update Customer");
         update.addActionListener(e -> {
-            EcoRide_Customer c = new EcoRide_Customer(nic, name.getText().trim(), contact.getText().trim(), email.getText().trim());
+            K2530341Customer c = new K2530341Customer(nic, name.getText().trim(), contact.getText().trim(), email.getText().trim());
             if (rentalSystem.updateCustomer(nic, c)) {
                 out.setText("[SUCCESS] Customer updated successfully!\n\n" + c);
                 d.dispose();
@@ -705,7 +705,7 @@ public class GUI extends JFrame {
     private void updateBookingDialog(JTextArea out) {
         String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID to update:");
         if (bookingId == null) return;
-        EcoRide_Booking existing = rentalSystem.getBooking(bookingId);
+        K2530341Booking existing = rentalSystem.getBooking(bookingId);
         if (existing == null) { warn(this, "Booking not found."); return; }
 
         JDialog d = modal("Update Booking", 520, 400);
@@ -725,15 +725,15 @@ public class GUI extends JFrame {
         JButton update = primaryButton("Update Booking");
         update.addActionListener(e -> {
             try {
-                EcoRide_Customer c = rentalSystem.getCustomer(nic.getText().trim());
-                EcoRide_Vehicle v = rentalSystem.getVehicle(vid.getText().trim());
+                K2530341Customer c = rentalSystem.getCustomer(nic.getText().trim());
+                K2530341Vehicle v = rentalSystem.getVehicle(vid.getText().trim());
                 if (c == null) { warn(d, "Customer not found."); return; }
                 if (v == null) { warn(d, "Vehicle not found."); return; }
                 LocalDate s = LocalDate.parse(start.getText().trim());
                 LocalDate en = LocalDate.parse(end.getText().trim());
                 int totalKm = Integer.parseInt(km.getText().trim());
 
-                EcoRide_Booking upd = new EcoRide_Booking(bookingId, c, v, s, en, totalKm);
+                K2530341Booking upd = new K2530341Booking(bookingId, c, v, s, en, totalKm);
                 if (rentalSystem.updateBooking(bookingId, upd)) {
                     out.setText("[SUCCESS] Booking updated successfully!\n\n" + upd);
                     d.dispose();
@@ -757,9 +757,9 @@ public class GUI extends JFrame {
     private void generateInvoiceDialog() {
         String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID for invoice:");
         if (bookingId == null) return;
-        EcoRide_Booking b = rentalSystem.getBooking(bookingId);
+        K2530341Booking b = rentalSystem.getBooking(bookingId);
         if (b == null) { warn(this, "Booking not found."); return; }
-        EcoRide_Invoice invoice = rentalSystem.generateInvoice(b);
+        K2530341Invoice invoice = rentalSystem.generateInvoice(b);
         outputArea.setText("INVOICE GENERATED\n" + "=".repeat(70) + "\n\n" + invoice.toString());
     }
 
@@ -818,6 +818,6 @@ public class GUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GUI::new);
+        SwingUtilities.invokeLater(K2530341GUI::new);
     }
 }

@@ -6,17 +6,17 @@ import java.time.LocalDate;
  * Represents a booking in the EcoRide Car Rental System.
  * Demonstrates OOP: Encapsulation, association with Customer and Vehicle.
  */
-public class EcoRide_Booking {
+public class K2530341Booking {
     private String bookingId;
-    private EcoRide_Customer customer;
-    private EcoRide_Vehicle vehicle;
+    private K2530341Customer customer;
+    private K2530341Vehicle vehicle;
     private LocalDate startDate;
     private LocalDate endDate;
     private int totalKm;
     private double deposit; // Refundable LKR 5,000
 
     // Constructor
-    public EcoRide_Booking(String bookingId, EcoRide_Customer customer, EcoRide_Vehicle vehicle,
+    public K2530341Booking(String bookingId, K2530341Customer customer, K2530341Vehicle vehicle,
                             LocalDate startDate, LocalDate endDate, int totalKm) {
         this.bookingId = bookingId;
         this.customer = customer;
@@ -31,11 +31,11 @@ public class EcoRide_Booking {
     public String getBookingId() { return bookingId; }
     public void setBookingId(String bookingId) { this.bookingId = bookingId; }
 
-    public EcoRide_Customer getCustomer() { return customer; }
-    public void setCustomer(EcoRide_Customer customer) { this.customer = customer; }
+    public K2530341Customer getCustomer() { return customer; }
+    public void setCustomer(K2530341Customer customer) { this.customer = customer; }
 
-    public EcoRide_Vehicle getVehicle() { return vehicle; }
-    public void setVehicle(EcoRide_Vehicle vehicle) { this.vehicle = vehicle; }
+    public K2530341Vehicle getVehicle() { return vehicle; }
+    public void setVehicle(K2530341Vehicle vehicle) { this.vehicle = vehicle; }
 
     public LocalDate getStartDate() { return startDate; }
     public void setStartDate(LocalDate startDate) { this.startDate = startDate; }

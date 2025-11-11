@@ -15,18 +15,18 @@ import java.time.format.DateTimeParseException;
  * Demonstrates data structures: ArrayList for lists, HashMap for quick lookups.
  * OOP: Composition, encapsulation.
  */
-public class EcoRide_RentalSystem {
-    private ArrayList<EcoRide_Vehicle> vehicles;
-    private HashMap<String, EcoRide_Vehicle> vehicleMap; // Key: carId
-    private ArrayList<EcoRide_Customer> customers;
-    private HashMap<String, EcoRide_Customer> customerMap; // Key: nicOrPassport
-    private ArrayList<EcoRide_Booking> bookings;
-    private HashMap<String, EcoRide_Booking> bookingMap; // Key: bookingId
+public class K2530341RentalSystem {
+    private ArrayList<K2530341Vehicle> vehicles;
+    private HashMap<String, K2530341Vehicle> vehicleMap; // Key: carId
+    private ArrayList<K2530341Customer> customers;
+    private HashMap<String, K2530341Customer> customerMap; // Key: nicOrPassport
+    private ArrayList<K2530341Booking> bookings;
+    private HashMap<String, K2530341Booking> bookingMap; // Key: bookingId
 
     /** Prevents saveData() from running during load. */
     private boolean isLoadingData = false;
 
-    public EcoRide_RentalSystem() {
+    public K2530341RentalSystem() {
         vehicles = new ArrayList<>();
         vehicleMap = new HashMap<>();
         customers = new ArrayList<>();
@@ -41,9 +41,9 @@ public class EcoRide_RentalSystem {
 
     // Initialize with sample vehicles
     private void initializeVehicles() {
-        addVehicle(new EcoRide_Vehicle("V001", "Toyota Aqua", "Hybrid", 7500.0, "Available"));
-        addVehicle(new EcoRide_Vehicle("V002", "Nissan Leaf", "Electric", 10000.0, "Available"));
-        addVehicle(new EcoRide_Vehicle("V003", "BMW X5", "Luxury SUV", 15000.0, "Available"));
+        addVehicle(new K2530341Vehicle("V001", "Toyota Aqua", "Hybrid", 7500.0, "Available"));
+        addVehicle(new K2530341Vehicle("V002", "Nissan Leaf", "Electric", 10000.0, "Available"));
+        addVehicle(new K2530341Vehicle("V003", "BMW X5", "Luxury SUV", 15000.0, "Available"));
         // addVehicle will save since we are not loading now
     }
 
@@ -83,7 +83,7 @@ public class EcoRide_RentalSystem {
                     String status = parts[4];
 
                     // Directly add to memory (DO NOT call addVehicle here)
-                    EcoRide_Vehicle v = new EcoRide_Vehicle(id, model, category, price, status);
+                    K2530341Vehicle v = new K2530341Vehicle(id, model, category, price, status);
                     vehicles.add(v);
                     vehicleMap.put(id, v);
                 }
@@ -95,7 +95,7 @@ public class EcoRide_RentalSystem {
 
     private void saveVehicles() {
         try (PrintWriter writer = new PrintWriter(new FileWriter("vehicles.csv"))) {
-            for (EcoRide_Vehicle v : vehicles) {
+            for (K2530341Vehicle v : vehicles) {
                 writer.println(v.getCarId() + "," + v.getModel() + "," + v.getCategory() + "," + v.getDailyRentalPrice() + "," + v.getAvailabilityStatus());
             }
         } catch (IOException e) {
@@ -120,7 +120,7 @@ public class EcoRide_RentalSystem {
                     String email = parts[3];
 
                     // Directly add to memory (DO NOT call registerCustomer here)
-                    EcoRide_Customer c = new EcoRide_Customer(nic, name, contact, email);
+                    K2530341Customer c = new K2530341Customer(nic, name, contact, email);
                     customers.add(c);
                     customerMap.put(nic, c);
                 }
@@ -132,7 +132,7 @@ public class EcoRide_RentalSystem {
 
     private void saveCustomers() {
         try (PrintWriter writer = new PrintWriter(new FileWriter("customers.csv"))) {
-            for (EcoRide_Customer c : customers) {
+            for (K2530341Customer c : customers) {
                 writer.println(c.getNicOrPassport() + "," + c.getName() + "," + c.getContactNumber() + "," + c.getEmail());
             }
         } catch (IOException e) {
@@ -180,14 +180,14 @@ public class EcoRide_RentalSystem {
                     String endDateStr  = parts[4];
                     int totalKm        = Integer.parseInt(parts[5]);
 
-                    EcoRide_Customer customer = customerMap.get(customerNic);
-                    EcoRide_Vehicle vehicle   = vehicleMap.get(vehicleId);
+                    K2530341Customer customer = customerMap.get(customerNic);
+                    K2530341Vehicle vehicle   = vehicleMap.get(vehicleId);
                     if (customer != null && vehicle != null) {
                         LocalDate startDate = parseDate(startDateStr);
                         LocalDate endDate   = parseDate(endDateStr);
                         if (startDate != null && endDate != null) {
                             // Use the constructor that expects LocalDate
-                            EcoRide_Booking b = new EcoRide_Booking(
+                            K2530341Booking b = new K2530341Booking(
                                 bookingId, customer, vehicle, startDate, endDate, totalKm
                             );
                             bookings.add(b);
@@ -209,7 +209,7 @@ public class EcoRide_RentalSystem {
 
     private void saveBookings() {
         try (PrintWriter writer = new PrintWriter(new FileWriter("bookings.csv"))) {
-            for (EcoRide_Booking b : bookings) {
+            for (K2530341Booking b : bookings) {
                 // Assuming getters return LocalDate; toString() => ISO-8601 (yyyy-MM-dd)
                 writer.println(
                     b.getBookingId() + "," +
@@ -226,18 +226,18 @@ public class EcoRide_RentalSystem {
     }
 
     // ------------ CRUD for Vehicles ------------
-    public void addVehicle(EcoRide_Vehicle vehicle) {
+    public void addVehicle(K2530341Vehicle vehicle) {
         vehicles.add(vehicle);
         vehicleMap.put(vehicle.getCarId(), vehicle);
         if (!isLoadingData) saveData(); // Persist after add, unless loading
     }
 
-    public EcoRide_Vehicle getVehicle(String carId) {
+    public K2530341Vehicle getVehicle(String carId) {
         return vehicleMap.get(carId);
     }
 
-    public boolean updateVehicle(String carId, EcoRide_Vehicle updatedVehicle) {
-        EcoRide_Vehicle existing = vehicleMap.get(carId);
+    public boolean updateVehicle(String carId, K2530341Vehicle updatedVehicle) {
+        K2530341Vehicle existing = vehicleMap.get(carId);
         if (existing != null) {
             vehicles.remove(existing);
             vehicles.add(updatedVehicle);
@@ -249,7 +249,7 @@ public class EcoRide_RentalSystem {
     }
 
     public boolean deleteVehicle(String carId) {
-        EcoRide_Vehicle vehicle = vehicleMap.remove(carId);
+        K2530341Vehicle vehicle = vehicleMap.remove(carId);
         if (vehicle != null) {
             vehicles.remove(vehicle);
             if (!isLoadingData) saveData();
@@ -258,23 +258,23 @@ public class EcoRide_RentalSystem {
         return false;
     }
 
-    public List<EcoRide_Vehicle> getAllVehicles() {
+    public List<K2530341Vehicle> getAllVehicles() {
         return new ArrayList<>(vehicles);
     }
 
     // ------------ Customers ------------
-    public void registerCustomer(EcoRide_Customer customer) {
+    public void registerCustomer(K2530341Customer customer) {
         customers.add(customer);
         customerMap.put(customer.getNicOrPassport(), customer);
         if (!isLoadingData) saveData();
     }
 
-    public EcoRide_Customer getCustomer(String nicOrPassport) {
+    public K2530341Customer getCustomer(String nicOrPassport) {
         return customerMap.get(nicOrPassport);
     }
 
-    public boolean updateCustomer(String nicOrPassport, EcoRide_Customer updatedCustomer) {
-        EcoRide_Customer existing = customerMap.get(nicOrPassport);
+    public boolean updateCustomer(String nicOrPassport, K2530341Customer updatedCustomer) {
+        K2530341Customer existing = customerMap.get(nicOrPassport);
         if (existing != null) {
             customers.remove(existing);
             customers.add(updatedCustomer);
@@ -286,7 +286,7 @@ public class EcoRide_RentalSystem {
     }
 
     public boolean deleteCustomer(String nicOrPassport) {
-        EcoRide_Customer customer = customerMap.remove(nicOrPassport);
+        K2530341Customer customer = customerMap.remove(nicOrPassport);
         if (customer != null) {
             customers.remove(customer);
             if (!isLoadingData) saveData();
@@ -295,7 +295,7 @@ public class EcoRide_RentalSystem {
         return false;
     }
 
-    public ArrayList<EcoRide_Customer> getAllCustomers() {
+    public ArrayList<K2530341Customer> getAllCustomers() {
         return new ArrayList<>(customers);
     }
 
@@ -304,7 +304,7 @@ public class EcoRide_RentalSystem {
     }
 
     // ------------ Bookings ------------
-    public boolean makeBooking(EcoRide_Booking booking) {
+    public boolean makeBooking(K2530341Booking booking) {
         if (booking.isValidBooking()) {
             bookings.add(booking);
             bookingMap.put(booking.getBookingId(), booking);
@@ -315,13 +315,13 @@ public class EcoRide_RentalSystem {
         return false;
     }
 
-    public EcoRide_Booking getBooking(String bookingId) {
+    public K2530341Booking getBooking(String bookingId) {
         return bookingMap.get(bookingId);
     }
 
-    public List<EcoRide_Booking> searchBookingsByName(String name) {
-        List<EcoRide_Booking> results = new ArrayList<>();
-        for (EcoRide_Booking booking : bookings) {
+    public List<K2530341Booking> searchBookingsByName(String name) {
+        List<K2530341Booking> results = new ArrayList<>();
+        for (K2530341Booking booking : bookings) {
             if (booking.getCustomer().getName().toLowerCase().contains(name.toLowerCase())) {
                 results.add(booking);
             }
@@ -329,11 +329,11 @@ public class EcoRide_RentalSystem {
         return results;
     }
 
-    public EcoRide_Invoice generateInvoice(EcoRide_Booking booking) {
-        return new EcoRide_Invoice(booking);
+    public K2530341Invoice generateInvoice(K2530341Booking booking) {
+        return new K2530341Invoice(booking);
     }
 
-    public ArrayList<EcoRide_Booking> getAllBookings() {
+    public ArrayList<K2530341Booking> getAllBookings() {
         return new ArrayList<>(bookings);
     }
 
@@ -342,8 +342,8 @@ public class EcoRide_RentalSystem {
     }
 
     // Update booking
-    public boolean updateBooking(String bookingId, EcoRide_Booking updatedBooking) {
-        EcoRide_Booking existing = bookingMap.get(bookingId);
+    public boolean updateBooking(String bookingId, K2530341Booking updatedBooking) {
+        K2530341Booking existing = bookingMap.get(bookingId);
         if (existing != null) {
             bookings.remove(existing);
             bookings.add(updatedBooking);
@@ -356,7 +356,7 @@ public class EcoRide_RentalSystem {
 
     // Delete booking
     public boolean deleteBooking(String bookingId) {
-        EcoRide_Booking booking = bookingMap.remove(bookingId);
+        K2530341Booking booking = bookingMap.remove(bookingId);
         if (booking != null) {
             bookings.remove(booking);
             booking.getVehicle().setAvailabilityStatus("Available"); // Free up vehicle

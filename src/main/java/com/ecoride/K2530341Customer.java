@@ -4,14 +4,14 @@ package com.ecoride;
  * Represents a customer in the EcoRide Car Rental System.
  * Demonstrates OOP: Encapsulation.
  */
-public class EcoRide_Customer {
+public class K2530341Customer {
     private String nicOrPassport;
     private String name;
     private String contactNumber;
     private String email;
 
     // Constructor
-    public EcoRide_Customer(String nicOrPassport, String name, String contactNumber, String email) {
+    public K2530341Customer(String nicOrPassport, String name, String contactNumber, String email) {
         this.nicOrPassport = nicOrPassport;
         this.name = name;
         this.contactNumber = contactNumber;

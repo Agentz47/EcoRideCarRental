@@ -7,8 +7,8 @@ import java.util.Map;
  * Represents an invoice for a booking in the EcoRide Car Rental System.
  * Demonstrates algorithms: Fee calculation with discounts, tax, extra km charges.
  */
-public class EcoRide_Invoice {
-    private EcoRide_Booking booking;
+public class K2530341Invoice {
+    private K2530341Booking booking;
     private double basePrice;
     private double extraKmCharge;
     private double discount;
@@ -28,7 +28,7 @@ public class EcoRide_Invoice {
     }
 
     // Constructor
-    public EcoRide_Invoice(EcoRide_Booking booking) {
+    public K2530341Invoice(K2530341Booking booking) {
         this.booking = booking;
         calculateFees();
     }
@@ -73,7 +73,7 @@ public class EcoRide_Invoice {
     }
 
     // Getters
-    public EcoRide_Booking getBooking() { return booking; }
+    public K2530341Booking getBooking() { return booking; }
     public double getBasePrice() { return basePrice; }
     public double getExtraKmCharge() { return extraKmCharge; }
     public double getDiscount() { return discount; }
