@@ -502,7 +502,15 @@ public class K2530341GUI extends JFrame {
     private void addVehicleDialog(JTextArea out) {
         JDialog d = modal("Add New Vehicle", 500, 380);
         JPanel f = formGrid(5);
-        JTextField id = tf(), model = tf(), category = tf(), price = tf(), status = tf("Available");
+        JTextField id = tf(), model = tf(), price = tf();
+        JComboBox<String> category = new JComboBox<>(new String[]{"Compact Petrol", "Hybrid", "Electric", "Luxury SUV", "Racing", "Off road SUV", "Super luxury"});
+        category.setBackground(Palette.BG_LIGHT);
+        category.setForeground(Palette.TEXT_PRIMARY);
+        category.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JComboBox<String> status = new JComboBox<>(new String[]{"Available", "Reserved", "Under Maintenance"});
+        status.setBackground(Palette.BG_LIGHT);
+        status.setForeground(Palette.TEXT_PRIMARY);
+        status.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         f.add(label("Car ID:")); f.add(id);
         f.add(label("Model:")); f.add(model);
@@ -512,10 +520,19 @@ public class K2530341GUI extends JFrame {
 
         JButton add = primaryButton("Add Vehicle");
         add.addActionListener(e -> {
+            String carId = id.getText().trim();
+            if (carId.isEmpty()) {
+                warn(d, "Car ID cannot be empty.");
+                return;
+            }
+            if (rentalSystem.getVehicle(carId) != null) {
+                warn(d, "Vehicle ID already exists. Please choose a unique ID.");
+                return;
+            }
             try {
                 K2530341Vehicle v = new K2530341Vehicle(
-                        id.getText().trim(), model.getText().trim(), category.getText().trim(),
-                        Double.parseDouble(price.getText().trim()), status.getText().trim());
+                        carId, model.getText().trim(), (String) category.getSelectedItem(),
+                        Double.parseDouble(price.getText().trim()), (String) status.getSelectedItem());
                 rentalSystem.addVehicle(v);
                 out.setText("[SUCCESS] Vehicle added successfully!\n\n" + v);
                 d.dispose();
@@ -541,8 +558,17 @@ public class K2530341GUI extends JFrame {
 
         JButton add = primaryButton("Register");
         add.addActionListener(e -> {
+            String nicValue = nic.getText().trim();
+            if (nicValue.isEmpty()) {
+                warn(d, "NIC/Passport cannot be empty.");
+                return;
+            }
+            if (rentalSystem.getCustomer(nicValue) != null) {
+                warn(d, "Customer NIC already exists. Please choose a unique NIC.");
+                return;
+            }
             K2530341Customer c = new K2530341Customer(
-                    nic.getText().trim(), name.getText().trim(), contact.getText().trim(), email.getText().trim());
+                    nicValue, name.getText().trim(), contact.getText().trim(), email.getText().trim());
             rentalSystem.registerCustomer(c);
             out.setText("[SUCCESS] Customer registered successfully!\n\n" + c);
             d.dispose();
@@ -567,6 +593,15 @@ public class K2530341GUI extends JFrame {
 
         JButton book = primaryButton("Create Booking");
         book.addActionListener(e -> {
+            String bookingId = id.getText().trim();
+            if (bookingId.isEmpty()) {
+                warn(d, "Booking ID cannot be empty.");
+                return;
+            }
+            if (rentalSystem.getBooking(bookingId) != null) {
+                warn(d, "Booking ID already exists. Please choose a unique ID.");
+                return;
+            }
             try {
                 K2530341Customer c = rentalSystem.getCustomer(nic.getText().trim());
                 K2530341Vehicle v = rentalSystem.getVehicle(vid.getText().trim());
@@ -577,7 +612,7 @@ public class K2530341GUI extends JFrame {
                 LocalDate en = LocalDate.parse(end.getText().trim());
                 int totalKm = Integer.parseInt(km.getText().trim());
 
-                K2530341Booking b = new K2530341Booking(id.getText().trim(), c, v, s, en, totalKm);
+                K2530341Booking b = new K2530341Booking(bookingId, c, v, s, en, totalKm);
                 if (rentalSystem.makeBooking(b)) {
                     out.setText("[SUCCESS] Booking successful!\n\n" + b);
                     d.dispose();
