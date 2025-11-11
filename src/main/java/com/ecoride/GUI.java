@@ -217,13 +217,17 @@ public class GUI extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel buttonsPanel = new JPanel(new FlowLayout());
+        JPanel buttonsPanel = new JPanel(new GridLayout(2, 3, 10, 10));
         JButton makeBookingBtn = new JButton("Make Booking");
         JButton searchBtn = new JButton("Search Bookings");
         JButton viewBtn = new JButton("View Bookings");
+        JButton updateBtn = new JButton("Update Booking");
+        JButton deleteBtn = new JButton("Delete Booking");
         buttonsPanel.add(makeBookingBtn);
         buttonsPanel.add(searchBtn);
         buttonsPanel.add(viewBtn);
+        buttonsPanel.add(updateBtn);
+        buttonsPanel.add(deleteBtn);
 
         panel.add(buttonsPanel, BorderLayout.NORTH);
 
@@ -236,6 +240,8 @@ public class GUI extends JFrame {
         makeBookingBtn.addActionListener(e -> makeBookingDialog(bookingsArea));
         searchBtn.addActionListener(e -> searchBookingsDialog(bookingsArea));
         viewBtn.addActionListener(e -> viewBookings(bookingsArea));
+        updateBtn.addActionListener(e -> updateBookingDialog(bookingsArea));
+        deleteBtn.addActionListener(e -> deleteBookingDialog(bookingsArea));
 
         return panel;
     }
@@ -551,6 +557,86 @@ public class GUI extends JFrame {
                 outputArea.setText("Customer deleted successfully.");
             } else {
                 JOptionPane.showMessageDialog(this, "Customer not found or delete failed.");
+            }
+        }
+    }
+
+    private void updateBookingDialog(JTextArea outputArea) {
+        String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID to update:");
+        if (bookingId != null) {
+            EcoRide_Booking existing = rentalSystem.getBooking(bookingId);
+            if (existing != null) {
+                JDialog dialog = new JDialog(this, "Update Booking", true);
+                dialog.setLayout(new GridLayout(7, 2));
+
+                JTextField customerNicField = new JTextField(existing.getCustomer().getNicOrPassport());
+                JTextField vehicleIdField = new JTextField(existing.getVehicle().getCarId());
+                JTextField startDateField = new JTextField(existing.getStartDate().toString());
+                JTextField endDateField = new JTextField(existing.getEndDate().toString());
+                JTextField totalKmField = new JTextField(String.valueOf(existing.getTotalKm()));
+
+                dialog.add(new JLabel("Customer NIC:"));
+                dialog.add(customerNicField);
+                dialog.add(new JLabel("Vehicle ID:"));
+                dialog.add(vehicleIdField);
+                dialog.add(new JLabel("Start Date:"));
+                dialog.add(startDateField);
+                dialog.add(new JLabel("End Date:"));
+                dialog.add(endDateField);
+                dialog.add(new JLabel("Total KM:"));
+                dialog.add(totalKmField);
+
+                JButton updateButton = new JButton("Update");
+                updateButton.addActionListener(e -> {
+                    try {
+                        String customerNic = customerNicField.getText();
+                        String vehicleId = vehicleIdField.getText();
+                        LocalDate startDate = LocalDate.parse(startDateField.getText());
+                        LocalDate endDate = LocalDate.parse(endDateField.getText());
+                        int totalKm = Integer.parseInt(totalKmField.getText());
+
+                        EcoRide_Customer customer = rentalSystem.getCustomer(customerNic);
+                        EcoRide_Vehicle vehicle = rentalSystem.getVehicle(vehicleId);
+
+                        if (customer == null) {
+                            JOptionPane.showMessageDialog(dialog, "Customer not found.");
+                            return;
+                        }
+                        if (vehicle == null) {
+                            JOptionPane.showMessageDialog(dialog, "Vehicle not found.");
+                            return;
+                        }
+
+                        EcoRide_Booking updated = new EcoRide_Booking(bookingId, customer, vehicle, startDate, endDate, totalKm);
+                        if (rentalSystem.updateBooking(bookingId, updated)) {
+                            outputArea.setText("Booking updated successfully.");
+                            dialog.dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(dialog, "Update failed.");
+                        }
+                    } catch (DateTimeParseException ex) {
+                        JOptionPane.showMessageDialog(dialog, "Invalid date format. Use YYYY-MM-DD.");
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(dialog, "Invalid number format.");
+                    }
+                });
+
+                dialog.add(updateButton);
+                dialog.setSize(300, 250);
+                dialog.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Booking not found.");
+            }
+        }
+    }
+
+    private void deleteBookingDialog(JTextArea outputArea) {
+        String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID to delete:");
+        if (bookingId != null) {
+            if (rentalSystem.deleteBooking(bookingId)) {
+                outputArea.setText("Booking deleted successfully.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Booking not found or delete failed.");
             }
         }
     }
