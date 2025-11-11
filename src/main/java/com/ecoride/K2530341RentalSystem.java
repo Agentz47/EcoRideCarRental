@@ -329,6 +329,17 @@ public class K2530341RentalSystem {
         return results;
     }
 
+    public List<K2530341Booking> searchBookingsByDate(LocalDate date) {
+        List<K2530341Booking> results = new ArrayList<>();
+        for (K2530341Booking booking : bookings) {
+            if ((booking.getStartDate().isBefore(date) || booking.getStartDate().isEqual(date)) &&
+                (booking.getEndDate().isAfter(date) || booking.getEndDate().isEqual(date))) {
+                results.add(booking);
+            }
+        }
+        return results;
+    }
+
     public K2530341Invoice generateInvoice(K2530341Booking booking) {
         return new K2530341Invoice(booking);
     }

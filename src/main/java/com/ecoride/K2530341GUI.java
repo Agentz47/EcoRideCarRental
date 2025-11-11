@@ -597,11 +597,20 @@ public class K2530341GUI extends JFrame {
     }
 
     private void searchBookingsDialog(JTextArea out) {
-        String name = JOptionPane.showInputDialog(this, "Enter Customer Name:");
-        if (name != null && !name.trim().isEmpty()) {
-            StringBuilder sb = new StringBuilder("SEARCH RESULTS FOR: " + name + "\n");
-            sb.append("=".repeat(70)).append("\n\n");
-            for (K2530341Booking b : rentalSystem.searchBookingsByName(name)) sb.append(b).append("\n\n");
+        String input = JOptionPane.showInputDialog(this, "Enter Customer Name or Date (YYYY-MM-DD):");
+        if (input != null && !input.trim().isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            try {
+                LocalDate date = LocalDate.parse(input.trim());
+                sb.append("SEARCH RESULTS FOR DATE: ").append(date).append("\n");
+                sb.append("=".repeat(70)).append("\n\n");
+                for (K2530341Booking b : rentalSystem.searchBookingsByDate(date)) sb.append(b).append("\n\n");
+            } catch (DateTimeParseException e) {
+                // Assume it's a name search
+                sb.append("SEARCH RESULTS FOR NAME: ").append(input).append("\n");
+                sb.append("=".repeat(70)).append("\n\n");
+                for (K2530341Booking b : rentalSystem.searchBookingsByName(input)) sb.append(b).append("\n\n");
+            }
             out.setText(sb.toString());
         }
     }
