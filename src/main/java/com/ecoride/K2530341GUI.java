@@ -612,12 +612,27 @@ public class K2530341GUI extends JFrame {
                 LocalDate en = LocalDate.parse(end.getText().trim());
                 int totalKm = Integer.parseInt(km.getText().trim());
 
+                // Specific validation checks for better error messages
+                LocalDate today = LocalDate.now();
+                if (!v.isAvailable()) {
+                    warn(d, "Vehicle is not available. Please choose another vehicle.");
+                    return;
+                }
+                if (!s.isAfter(today.plusDays(2))) {
+                    warn(d, "Booking must be made at least 3 days in advance. Please choose a later start date.");
+                    return;
+                }
+                if (s.isAfter(en)) {
+                    warn(d, "Start date cannot be after end date.");
+                    return;
+                }
+
                 K2530341Booking b = new K2530341Booking(bookingId, c, v, s, en, totalKm);
                 if (rentalSystem.makeBooking(b)) {
                     out.setText("[SUCCESS] Booking successful!\n\n" + b);
                     d.dispose();
                 } else {
-                    warn(d, "Booking failed. Check vehicle availability or dates.");
+                    warn(d, "Booking failed due to an unexpected error.");
                 }
             } catch (DateTimeParseException ex) {
                 warn(d, "Invalid date format. Please use YYYY-MM-DD.");
@@ -752,6 +767,13 @@ public class K2530341GUI extends JFrame {
         K2530341Booking existing = rentalSystem.getBooking(bookingId);
         if (existing == null) { warn(this, "Booking not found."); return; }
 
+        // Check if booking can be updated (not within 2 days of start date)
+        LocalDate today = LocalDate.now();
+        if (existing.getStartDate().isBefore(today.plusDays(3))) {
+            warn(this, "Cannot update booking within 2 days of the start date.");
+            return;
+        }
+
         JDialog d = modal("Update Booking", 520, 400);
         JPanel f = formGrid(5);
         JTextField nic = tf(existing.getCustomer().getNicOrPassport());
@@ -794,8 +816,19 @@ public class K2530341GUI extends JFrame {
     private void deleteBookingDialog(JTextArea out) {
         String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID to delete:");
         if (bookingId == null) return;
+        K2530341Booking existing = rentalSystem.getBooking(bookingId);
+        if (existing == null) {
+            warn(this, "Booking not found.");
+            return;
+        }
+        // Check if booking can be deleted (not within 2 days of start date)
+        LocalDate today = LocalDate.now();
+        if (existing.getStartDate().isBefore(today.plusDays(3))) {
+            warn(this, "Cannot delete booking within 2 days of the start date.");
+            return;
+        }
         if (rentalSystem.deleteBooking(bookingId)) out.setText("[DELETED] Booking deleted successfully.");
-        else warn(this, "Booking not found or deletion failed.");
+        else warn(this, "Booking deletion failed.");
     }
 
     private void generateInvoiceDialog() {
