@@ -45,20 +45,26 @@ public class EcoRide_RentalSystem {
         return vehicleMap.get(carId);
     }
 
-    public void updateVehicle(String carId, EcoRide_Vehicle updatedVehicle) {
+    // Update methods (renamed to avoid duplicate)
+    public boolean updateVehicle(String carId, EcoRide_Vehicle updatedVehicle) {
         EcoRide_Vehicle existing = vehicleMap.get(carId);
         if (existing != null) {
             vehicles.remove(existing);
             vehicles.add(updatedVehicle);
             vehicleMap.put(carId, updatedVehicle);
+            return true;
         }
+        return false;
     }
 
-    public void removeVehicle(String carId) {
+    // Delete methods (renamed to avoid duplicate)
+    public boolean deleteVehicle(String carId) {
         EcoRide_Vehicle vehicle = vehicleMap.remove(carId);
         if (vehicle != null) {
             vehicles.remove(vehicle);
+            return true;
         }
+        return false;
     }
 
     public List<EcoRide_Vehicle> getAllVehicles() {
@@ -123,4 +129,28 @@ public class EcoRide_RentalSystem {
     public ArrayList<EcoRide_Booking> getAllBookings() {
         return new ArrayList<>(bookings);
     }
+
+    // Update methods
+    public boolean updateCustomer(String nicOrPassport, EcoRide_Customer updatedCustomer) {
+        EcoRide_Customer existing = customerMap.get(nicOrPassport);
+        if (existing != null) {
+            customers.remove(existing);
+            customers.add(updatedCustomer);
+            customerMap.put(nicOrPassport, updatedCustomer);
+            return true;
+        }
+        return false;
+    }
+
+    // Delete methods
+    public boolean deleteCustomer(String nicOrPassport) {
+        EcoRide_Customer customer = customerMap.remove(nicOrPassport);
+        if (customer != null) {
+            customers.remove(customer);
+            return true;
+        }
+        return false;
+    }
+
+
 }

@@ -156,11 +156,15 @@ public class GUI extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Buttons Panel
-        JPanel buttonsPanel = new JPanel(new FlowLayout());
+        JPanel buttonsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         JButton viewBtn = new JButton("View Vehicles");
         JButton addBtn = new JButton("Add Vehicle");
+        JButton updateBtn = new JButton("Update Vehicle");
+        JButton deleteBtn = new JButton("Delete Vehicle");
         buttonsPanel.add(viewBtn);
         buttonsPanel.add(addBtn);
+        buttonsPanel.add(updateBtn);
+        buttonsPanel.add(deleteBtn);
 
         panel.add(buttonsPanel, BorderLayout.NORTH);
 
@@ -174,6 +178,8 @@ public class GUI extends JFrame {
         // Set listeners with the specific area
         viewBtn.addActionListener(e -> viewVehicles(vehiclesArea));
         addBtn.addActionListener(e -> addVehicleDialog(vehiclesArea));
+        updateBtn.addActionListener(e -> updateVehicleDialog(vehiclesArea));
+        deleteBtn.addActionListener(e -> deleteVehicleDialog(vehiclesArea));
 
         return panel;
     }
@@ -182,11 +188,15 @@ public class GUI extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel buttonsPanel = new JPanel(new FlowLayout());
+        JPanel buttonsPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         JButton registerBtn = new JButton("Register Customer");
         JButton viewBtn = new JButton("View Customers");
+        JButton updateBtn = new JButton("Update Customer");
+        JButton deleteBtn = new JButton("Delete Customer");
         buttonsPanel.add(registerBtn);
         buttonsPanel.add(viewBtn);
+        buttonsPanel.add(updateBtn);
+        buttonsPanel.add(deleteBtn);
         panel.add(buttonsPanel, BorderLayout.NORTH);
 
         JTextArea customersArea = new JTextArea();
@@ -197,6 +207,8 @@ public class GUI extends JFrame {
 
         registerBtn.addActionListener(e -> registerCustomerDialog(customersArea));
         viewBtn.addActionListener(e -> viewCustomers(customersArea));
+        updateBtn.addActionListener(e -> updateCustomerDialog(customersArea));
+        deleteBtn.addActionListener(e -> deleteCustomerDialog(customersArea));
 
         return panel;
     }
@@ -425,6 +437,122 @@ public class GUI extends JFrame {
             sb.append(b.toString()).append("\n");
         }
         outputArea.setText(sb.toString());
+    }
+
+    private void updateVehicleDialog(JTextArea outputArea) {
+        String carId = JOptionPane.showInputDialog(this, "Enter Vehicle ID to update:");
+        if (carId != null) {
+            EcoRide_Vehicle existing = rentalSystem.getVehicle(carId);
+            if (existing != null) {
+                JDialog dialog = new JDialog(this, "Update Vehicle", true);
+                dialog.setLayout(new GridLayout(6, 2));
+
+                JTextField modelField = new JTextField(existing.getModel());
+                JTextField categoryField = new JTextField(existing.getCategory());
+                JTextField priceField = new JTextField(String.valueOf(existing.getDailyRentalPrice()));
+                JTextField statusField = new JTextField(existing.getAvailabilityStatus());
+
+                dialog.add(new JLabel("Model:"));
+                dialog.add(modelField);
+                dialog.add(new JLabel("Category:"));
+                dialog.add(categoryField);
+                dialog.add(new JLabel("Daily Price:"));
+                dialog.add(priceField);
+                dialog.add(new JLabel("Status:"));
+                dialog.add(statusField);
+
+                JButton updateButton = new JButton("Update");
+                updateButton.addActionListener(e -> {
+                    try {
+                        String model = modelField.getText();
+                        String category = categoryField.getText();
+                        double price = Double.parseDouble(priceField.getText());
+                        String status = statusField.getText();
+
+                        EcoRide_Vehicle updated = new EcoRide_Vehicle(carId, model, category, price, status);
+                        if (rentalSystem.updateVehicle(carId, updated)) {
+                            outputArea.setText("Vehicle updated successfully.");
+                            dialog.dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(dialog, "Update failed.");
+                        }
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(dialog, "Invalid price format.");
+                    }
+                });
+
+                dialog.add(updateButton);
+                dialog.setSize(300, 200);
+                dialog.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Vehicle not found.");
+            }
+        }
+    }
+
+    private void deleteVehicleDialog(JTextArea outputArea) {
+        String carId = JOptionPane.showInputDialog(this, "Enter Vehicle ID to delete:");
+        if (carId != null) {
+            if (rentalSystem.deleteVehicle(carId)) {
+                outputArea.setText("Vehicle deleted successfully.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Vehicle not found or delete failed.");
+            }
+        }
+    }
+
+    private void updateCustomerDialog(JTextArea outputArea) {
+        String nic = JOptionPane.showInputDialog(this, "Enter Customer NIC to update:");
+        if (nic != null) {
+            EcoRide_Customer existing = rentalSystem.getCustomer(nic);
+            if (existing != null) {
+                JDialog dialog = new JDialog(this, "Update Customer", true);
+                dialog.setLayout(new GridLayout(5, 2));
+
+                JTextField nameField = new JTextField(existing.getName());
+                JTextField contactField = new JTextField(existing.getContactNumber());
+                JTextField emailField = new JTextField(existing.getEmail());
+
+                dialog.add(new JLabel("Name:"));
+                dialog.add(nameField);
+                dialog.add(new JLabel("Contact:"));
+                dialog.add(contactField);
+                dialog.add(new JLabel("Email:"));
+                dialog.add(emailField);
+
+                JButton updateButton = new JButton("Update");
+                updateButton.addActionListener(e -> {
+                    String name = nameField.getText();
+                    String contact = contactField.getText();
+                    String email = emailField.getText();
+
+                    EcoRide_Customer updated = new EcoRide_Customer(nic, name, contact, email);
+                    if (rentalSystem.updateCustomer(nic, updated)) {
+                        outputArea.setText("Customer updated successfully.");
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Update failed.");
+                    }
+                });
+
+                dialog.add(updateButton);
+                dialog.setSize(300, 200);
+                dialog.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Customer not found.");
+            }
+        }
+    }
+
+    private void deleteCustomerDialog(JTextArea outputArea) {
+        String nic = JOptionPane.showInputDialog(this, "Enter Customer NIC to delete:");
+        if (nic != null) {
+            if (rentalSystem.deleteCustomer(nic)) {
+                outputArea.setText("Customer deleted successfully.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Customer not found or delete failed.");
+            }
+        }
     }
 
     private void generateInvoiceDialog() {
