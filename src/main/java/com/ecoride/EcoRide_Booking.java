@@ -50,13 +50,16 @@ public class EcoRide_Booking {
 
     // Calculate number of days
     public long getNumberOfDays() {
+        if (startDate.isAfter(endDate)) {
+            return 0; // Invalid, but handle gracefully
+        }
         return java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1; // Inclusive
     }
 
-    // Validation: Check if booking can be made (vehicle available, at least 3 days in advance)
+    // Validation: Check if booking can be made (vehicle available, at least 3 days in advance, valid dates)
     public boolean isValidBooking() {
         LocalDate today = LocalDate.now();
-        return vehicle.isAvailable() && startDate.isAfter(today.plusDays(2)); // At least 3 days prior
+        return vehicle.isAvailable() && startDate.isAfter(today.plusDays(2)) && !startDate.isAfter(endDate); // At least 3 days prior, start <= end
     }
 
     @Override

@@ -30,9 +30,9 @@ public class EcoRide_RentalSystem {
 
     // Initialize with sample vehicles
     private void initializeVehicles() {
-        addVehicle(new EcoRide_Vehicle("V001", "Toyota Aqua", "Hybrid", 7500, "Available"));
-        addVehicle(new EcoRide_Vehicle("V002", "Nissan Leaf", "Electric", 10000, "Available"));
-        addVehicle(new EcoRide_Vehicle("V003", "BMW X5", "Luxury SUV", 15000, "Available"));
+        addVehicle(new EcoRide_Vehicle("V001", "Toyota Aqua", "Hybrid", 7500.0, "Available"));
+        addVehicle(new EcoRide_Vehicle("V002", "Nissan Leaf", "Electric", 10000.0, "Available"));
+        addVehicle(new EcoRide_Vehicle("V003", "BMW X5", "Luxury SUV", 15000.0, "Available"));
     }
 
     // CRUD for Vehicles
@@ -104,5 +104,15 @@ public class EcoRide_RentalSystem {
     // Generate invoice
     public EcoRide_Invoice generateInvoice(EcoRide_Booking booking) {
         return new EcoRide_Invoice(booking);
+    }
+
+    // Get customer count
+    public int getCustomerCount() {
+        return customers.size();
+    }
+
+    // Get booking count
+    public int getBookingCount() {
+        return bookings.size();
     }
 }

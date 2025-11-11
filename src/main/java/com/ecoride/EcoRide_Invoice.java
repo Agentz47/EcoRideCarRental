@@ -42,12 +42,20 @@ public class EcoRide_Invoice {
         double taxRate = pricing[3];
 
         long days = booking.getNumberOfDays();
+        if (days <= 0) {
+            basePrice = 0;
+            extraKmCharge = 0;
+            discount = 0;
+            tax = 0;
+            totalAmount = 0;
+            return;
+        }
         basePrice = dailyFee * days;
 
         int extraKm = Math.max(0, booking.getTotalKm() - freeKm);
         extraKmCharge = extraKm * extraKmRate;
 
-        // Discount: 10% if 7+ days
+        // Discount: 10% if 7+ days, applied before tax
         discount = (days >= 7) ? basePrice * 0.10 : 0;
 
         double subtotal = basePrice + extraKmCharge - discount;

@@ -1,6 +1,7 @@
 package com.ecoride;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,77 +12,234 @@ import java.time.format.DateTimeParseException;
 public class GUI extends JFrame {
     private EcoRide_RentalSystem rentalSystem;
     private JTextArea outputArea;
+    private JTabbedPane tabbedPane;
 
     public GUI() {
         rentalSystem = new EcoRide_RentalSystem();
-        initializeSampleData();
-        setupGUI();
+        setupModernGUI();
     }
 
-    private void initializeSampleData() {
-        // Add sample vehicles
-        rentalSystem.addVehicle(new EcoRide_Vehicle("V001", "Toyota Aqua", "Hybrid", 7500.0, "Available"));
-        rentalSystem.addVehicle(new EcoRide_Vehicle("V002", "Nissan Leaf", "Electric", 10000.0, "Available"));
-        rentalSystem.addVehicle(new EcoRide_Vehicle("V003", "BMW X5", "Luxury SUV", 15000.0, "Available"));
-    }
+    private void setupModernGUI() {
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            // Fallback to default
+        }
 
-    private void setupGUI() {
-        setTitle("EcoRide Car Rental System");
-        setSize(800, 600);
+        setTitle("EcoRide Car Rental System - Modern Interface");
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Menu bar
-        JMenuBar menuBar = new JMenuBar();
-        JMenu vehicleMenu = new JMenu("Vehicles");
-        JMenu customerMenu = new JMenu("Customers");
-        JMenu bookingMenu = new JMenu("Bookings");
-        JMenu invoiceMenu = new JMenu("Invoices");
+        // Header Panel
+        JPanel headerPanel = new JPanel();
+        headerPanel.setBackground(new Color(34, 139, 34)); // Green color
+        headerPanel.setPreferredSize(new Dimension(1000, 80));
+        JLabel titleLabel = new JLabel("EcoRide Car Rental System", JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
+        headerPanel.add(titleLabel);
+        add(headerPanel, BorderLayout.NORTH);
 
-        // Vehicle menu items
-        JMenuItem viewVehicles = new JMenuItem("View Vehicles");
-        viewVehicles.addActionListener(e -> viewVehicles());
-        vehicleMenu.add(viewVehicles);
+        // Tabbed Pane for main content
+        tabbedPane = new JTabbedPane();
+        tabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
 
-        JMenuItem addVehicle = new JMenuItem("Add Vehicle");
-        addVehicle.addActionListener(e -> addVehicleDialog());
-        vehicleMenu.add(addVehicle);
+        // Dashboard Tab
+        JPanel dashboardPanel = createDashboardPanel();
+        tabbedPane.addTab("Dashboard", dashboardPanel);
 
-        // Customer menu items
-        JMenuItem registerCustomer = new JMenuItem("Register Customer");
-        registerCustomer.addActionListener(e -> registerCustomerDialog());
-        customerMenu.add(registerCustomer);
+        // Vehicles Tab
+        JPanel vehiclesPanel = createVehiclesPanel();
+        tabbedPane.addTab("Vehicles", vehiclesPanel);
 
-        // Booking menu items
-        JMenuItem makeBooking = new JMenuItem("Make Booking");
-        makeBooking.addActionListener(e -> makeBookingDialog());
-        bookingMenu.add(makeBooking);
+        // Customers Tab
+        JPanel customersPanel = createCustomersPanel();
+        tabbedPane.addTab("Customers", customersPanel);
 
-        JMenuItem searchBookings = new JMenuItem("Search Bookings");
-        searchBookings.addActionListener(e -> searchBookingsDialog());
-        bookingMenu.add(searchBookings);
+        // Bookings Tab
+        JPanel bookingsPanel = createBookingsPanel();
+        tabbedPane.addTab("Bookings", bookingsPanel);
 
-        // Invoice menu items
-        JMenuItem generateInvoice = new JMenuItem("Generate Invoice");
-        generateInvoice.addActionListener(e -> generateInvoiceDialog());
-        invoiceMenu.add(generateInvoice);
+        // Invoices Tab
+        JPanel invoicesPanel = createInvoicesPanel();
+        tabbedPane.addTab("Invoices", invoicesPanel);
 
-        menuBar.add(vehicleMenu);
-        menuBar.add(customerMenu);
-        menuBar.add(bookingMenu);
-        menuBar.add(invoiceMenu);
-        setJMenuBar(menuBar);
+        add(tabbedPane, BorderLayout.CENTER);
 
-        // Output area
-        outputArea = new JTextArea();
-        outputArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(outputArea);
-        add(scrollPane, BorderLayout.CENTER);
+        // Footer Panel
+        JPanel footerPanel = new JPanel();
+        footerPanel.setBackground(new Color(240, 240, 240));
+        footerPanel.setPreferredSize(new Dimension(1000, 30));
+        JLabel footerLabel = new JLabel("© 2023 EcoRide - Sustainable Car Rentals", JLabel.CENTER);
+        footerLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        footerPanel.add(footerLabel);
+        add(footerPanel, BorderLayout.SOUTH);
 
         setVisible(true);
     }
 
-    private void viewVehicles() {
+    private JPanel createDashboardPanel() {
+        JPanel panel = new JPanel(new GridLayout(2, 2, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBackground(new Color(245, 245, 245));
+
+        // Stats Panel
+        JPanel statsPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        statsPanel.setBorder(new TitledBorder("System Statistics"));
+        statsPanel.setBackground(Color.WHITE);
+
+        JLabel vehicleCount = new JLabel("Total Vehicles: " + rentalSystem.getAllVehicles().size());
+        vehicleCount.setFont(new Font("Arial", Font.BOLD, 14));
+        statsPanel.add(vehicleCount);
+
+        JLabel customerCount = new JLabel("Total Customers: " + rentalSystem.getCustomerCount());
+        customerCount.setFont(new Font("Arial", Font.BOLD, 14));
+        statsPanel.add(customerCount);
+
+        JLabel bookingCount = new JLabel("Total Bookings: " + rentalSystem.getBookingCount());
+        bookingCount.setFont(new Font("Arial", Font.BOLD, 14));
+        statsPanel.add(bookingCount);
+
+        JLabel availableVehicles = new JLabel("Available Vehicles: " +
+            rentalSystem.getAllVehicles().stream().filter(v -> "Available".equals(v.getAvailabilityStatus())).count());
+        availableVehicles.setFont(new Font("Arial", Font.BOLD, 14));
+        statsPanel.add(availableVehicles);
+
+        panel.add(statsPanel);
+
+        // Welcome Message
+        JPanel welcomePanel = new JPanel();
+        welcomePanel.setBorder(new TitledBorder("Welcome"));
+        welcomePanel.setBackground(Color.WHITE);
+        JTextArea welcomeText = new JTextArea("Welcome to EcoRide Car Rental System!\n\n" +
+            "Manage your eco-friendly vehicle rentals efficiently.\n" +
+            "Use the tabs above to navigate through different sections.");
+        welcomeText.setEditable(false);
+        welcomeText.setFont(new Font("Arial", Font.PLAIN, 14));
+        welcomeText.setBackground(Color.WHITE);
+        welcomePanel.add(welcomeText);
+        panel.add(welcomePanel);
+
+        // Quick Actions
+        JPanel actionsPanel = new JPanel(new GridLayout(3, 1, 5, 5));
+        actionsPanel.setBorder(new TitledBorder("Quick Actions"));
+        actionsPanel.setBackground(Color.WHITE);
+
+        JButton viewVehiclesBtn = new JButton("View All Vehicles");
+        viewVehiclesBtn.addActionListener(e -> tabbedPane.setSelectedIndex(1));
+        actionsPanel.add(viewVehiclesBtn);
+
+        JButton addCustomerBtn = new JButton("Register New Customer");
+        addCustomerBtn.addActionListener(e -> tabbedPane.setSelectedIndex(2));
+        actionsPanel.add(addCustomerBtn);
+
+        JButton makeBookingBtn = new JButton("Make a Booking");
+        makeBookingBtn.addActionListener(e -> tabbedPane.setSelectedIndex(3));
+        actionsPanel.add(makeBookingBtn);
+
+        panel.add(actionsPanel);
+
+        // Output Area
+        outputArea = new JTextArea(10, 40);
+        outputArea.setEditable(false);
+        outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scrollPane = new JScrollPane(outputArea);
+        scrollPane.setBorder(new TitledBorder("System Messages"));
+        panel.add(scrollPane);
+
+        return panel;
+    }
+
+    private JPanel createVehiclesPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Buttons Panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout());
+        JButton viewBtn = new JButton("View Vehicles");
+        JButton addBtn = new JButton("Add Vehicle");
+        buttonsPanel.add(viewBtn);
+        buttonsPanel.add(addBtn);
+
+        panel.add(buttonsPanel, BorderLayout.NORTH);
+
+        // Output Area
+        JTextArea vehiclesArea = new JTextArea();
+        vehiclesArea.setEditable(false);
+        vehiclesArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scrollPane = new JScrollPane(vehiclesArea);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Set listeners with the specific area
+        viewBtn.addActionListener(e -> viewVehicles(vehiclesArea));
+        addBtn.addActionListener(e -> addVehicleDialog(vehiclesArea));
+
+        return panel;
+    }
+
+    private JPanel createCustomersPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JButton registerBtn = new JButton("Register Customer");
+        panel.add(registerBtn, BorderLayout.NORTH);
+
+        JTextArea customersArea = new JTextArea();
+        customersArea.setEditable(false);
+        customersArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scrollPane = new JScrollPane(customersArea);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        registerBtn.addActionListener(e -> registerCustomerDialog(customersArea));
+
+        return panel;
+    }
+
+    private JPanel createBookingsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel buttonsPanel = new JPanel(new FlowLayout());
+        JButton makeBookingBtn = new JButton("Make Booking");
+        JButton searchBtn = new JButton("Search Bookings");
+        buttonsPanel.add(makeBookingBtn);
+        buttonsPanel.add(searchBtn);
+
+        panel.add(buttonsPanel, BorderLayout.NORTH);
+
+        JTextArea bookingsArea = new JTextArea();
+        bookingsArea.setEditable(false);
+        bookingsArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scrollPane = new JScrollPane(bookingsArea);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        makeBookingBtn.addActionListener(e -> makeBookingDialog(bookingsArea));
+        searchBtn.addActionListener(e -> searchBookingsDialog(bookingsArea));
+
+        return panel;
+    }
+
+    private JPanel createInvoicesPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JButton generateBtn = new JButton("Generate Invoice");
+        generateBtn.addActionListener(e -> generateInvoiceDialog());
+        panel.add(generateBtn, BorderLayout.NORTH);
+
+        JTextArea invoicesArea = new JTextArea();
+        invoicesArea.setEditable(false);
+        invoicesArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scrollPane = new JScrollPane(invoicesArea);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        outputArea = invoicesArea;
+
+        return panel;
+    }
+
+    private void viewVehicles(JTextArea outputArea) {
         StringBuilder sb = new StringBuilder("Available Vehicles:\n");
         for (EcoRide_Vehicle v : rentalSystem.getAllVehicles()) {
             sb.append(v.toString()).append("\n");
@@ -89,7 +247,7 @@ public class GUI extends JFrame {
         outputArea.setText(sb.toString());
     }
 
-    private void addVehicleDialog() {
+    private void addVehicleDialog(JTextArea outputArea) {
         JDialog dialog = new JDialog(this, "Add Vehicle", true);
         dialog.setLayout(new GridLayout(6, 2));
 
@@ -133,7 +291,7 @@ public class GUI extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void registerCustomerDialog() {
+    private void registerCustomerDialog(JTextArea outputArea) {
         JDialog dialog = new JDialog(this, "Register Customer", true);
         dialog.setLayout(new GridLayout(5, 2));
 
@@ -169,7 +327,7 @@ public class GUI extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void makeBookingDialog() {
+    private void makeBookingDialog(JTextArea outputArea) {
         JDialog dialog = new JDialog(this, "Make Booking", true);
         dialog.setLayout(new GridLayout(7, 2));
 
@@ -234,7 +392,7 @@ public class GUI extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void searchBookingsDialog() {
+    private void searchBookingsDialog(JTextArea outputArea) {
         String name = JOptionPane.showInputDialog(this, "Enter Customer Name:");
         if (name != null) {
             StringBuilder sb = new StringBuilder("Bookings for " + name + ":\n");
