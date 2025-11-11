@@ -115,4 +115,8 @@ public class EcoRide_RentalSystem {
     public int getBookingCount() {
         return bookings.size();
     }
+
+    public ArrayList<EcoRide_Customer> getAllCustomers() {
+        return new ArrayList<>(customers);
+    }
 }

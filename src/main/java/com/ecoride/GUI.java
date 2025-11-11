@@ -182,8 +182,12 @@ public class GUI extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        JPanel buttonsPanel = new JPanel(new FlowLayout());
         JButton registerBtn = new JButton("Register Customer");
-        panel.add(registerBtn, BorderLayout.NORTH);
+        JButton viewBtn = new JButton("View Customers");
+        buttonsPanel.add(registerBtn);
+        buttonsPanel.add(viewBtn);
+        panel.add(buttonsPanel, BorderLayout.NORTH);
 
         JTextArea customersArea = new JTextArea();
         customersArea.setEditable(false);
@@ -192,6 +196,7 @@ public class GUI extends JFrame {
         panel.add(scrollPane, BorderLayout.CENTER);
 
         registerBtn.addActionListener(e -> registerCustomerDialog(customersArea));
+        viewBtn.addActionListener(e -> viewCustomers(customersArea));
 
         return panel;
     }
@@ -401,6 +406,14 @@ public class GUI extends JFrame {
             }
             outputArea.setText(sb.toString());
         }
+    }
+
+    private void viewCustomers(JTextArea outputArea) {
+        StringBuilder sb = new StringBuilder("Registered Customers:\n");
+        for (EcoRide_Customer c : rentalSystem.getAllCustomers()) {
+            sb.append(c.toString()).append("\n");
+        }
+        outputArea.setText(sb.toString());
     }
 
     private void generateInvoiceDialog() {
