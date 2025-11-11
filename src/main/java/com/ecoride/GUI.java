@@ -12,20 +12,37 @@ public class GUI extends JFrame {
     private JTextArea outputArea;
     private JTabbedPane tabbedPane;
 
-    // ---------- Accessible, modern palette ----------
+    // ---------- Modern, accessible color palette ----------
     private static class Palette {
-        static final Color INDIGO = new Color(63, 81, 181);
-        static final Color TEAL = new Color(0, 150, 136);
-        static final Color AMBER = new Color(255, 193, 7);
-        static final Color SUCCESS = new Color(56, 142, 60);
-        static final Color INFO = new Color(2, 136, 209);
-        static final Color WARNING = new Color(245, 124, 0);
-        static final Color DANGER = new Color(229, 57, 53);
-        static final Color BG = new Color(248, 249, 251);
-        static final Color CARD = Color.WHITE;
-        static final Color TEXT = new Color(33, 33, 33);
-        static final Color MUTED = new Color(117, 117, 117);
-        static final Color DIVIDER = new Color(224, 224, 224);
+        // Primary colors
+        static final Color PRIMARY = new Color(16, 185, 129);      // Emerald green (eco-friendly)
+        static final Color PRIMARY_DARK = new Color(5, 150, 105);  // Darker emerald
+        static final Color SECONDARY = new Color(59, 130, 246);    // Blue
+        
+        // Semantic colors
+        static final Color SUCCESS = new Color(34, 197, 94);       // Green
+        static final Color WARNING = new Color(251, 146, 60);      // Orange
+        static final Color DANGER = new Color(239, 68, 68);        // Red
+        static final Color INFO = new Color(96, 165, 250);         // Light blue
+        
+        // Background colors
+        static final Color BG_MAIN = new Color(15, 23, 42);        // Dark slate
+        static final Color BG_CARD = new Color(30, 41, 59);        // Slate card
+        static final Color BG_LIGHT = new Color(51, 65, 85);       // Lighter slate
+        
+        // Text colors
+        static final Color TEXT_PRIMARY = new Color(248, 250, 252); // Almost white
+        static final Color TEXT_SECONDARY = new Color(203, 213, 225); // Light gray
+        static final Color TEXT_MUTED = new Color(148, 163, 184);  // Gray
+        static final Color TEXT_ACCENT = new Color(52, 211, 153);  // Bright green
+        
+        // Border & divider
+        static final Color BORDER = new Color(71, 85, 105);        // Slate border
+        static final Color DIVIDER = new Color(51, 65, 85);        // Subtle divider
+        
+        // Button colors
+        static final Color BTN_NEUTRAL_BG = new Color(71, 85, 105);
+        static final Color BTN_NEUTRAL_TEXT = new Color(226, 232, 240);
     }
 
     public GUI() {
@@ -42,18 +59,51 @@ public class GUI extends JFrame {
     // ---------- Look & Feel + UI defaults ----------
     private void setupLAF() {
         try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-            UIManager.put("control", Palette.BG);
-            UIManager.put("info", Palette.CARD);
-            UIManager.put("nimbusBase", new Color(70, 89, 189));
-            UIManager.put("nimbusBlueGrey", new Color(200, 205, 218));
-            UIManager.put("nimbusLightBackground", Palette.CARD);
-            UIManager.put("text", Palette.TEXT);
-            UIManager.put("Button.font", UIManager.getFont("Button.font").deriveFont(14f));
-            UIManager.put("Label.font", UIManager.getFont("Label.font").deriveFont(14f));
-            UIManager.put("TextField.font", UIManager.getFont("TextField.font").deriveFont(14f));
-            UIManager.put("TabbedPane.font", UIManager.getFont("TabbedPane.font").deriveFont(14f));
-            UIManager.put("TitledBorder.font", UIManager.getFont("TitledBorder.font").deriveFont(Font.BOLD, 14f));
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            
+            // Set global UI colors
+            UIManager.put("Panel.background", Palette.BG_MAIN);
+            UIManager.put("OptionPane.background", Palette.BG_CARD);
+            UIManager.put("OptionPane.messageForeground", Palette.TEXT_PRIMARY);
+            UIManager.put("TextField.background", Palette.BG_LIGHT);
+            UIManager.put("TextField.foreground", Palette.TEXT_PRIMARY);
+            UIManager.put("TextField.caretForeground", Palette.TEXT_PRIMARY);
+            UIManager.put("TextArea.background", Palette.BG_LIGHT);
+            UIManager.put("TextArea.foreground", Palette.TEXT_PRIMARY);
+            UIManager.put("Label.foreground", Palette.TEXT_PRIMARY);
+            
+            // Fonts
+            Font baseFont = new Font("Segoe UI", Font.PLAIN, 14);
+            UIManager.put("Button.font", baseFont);
+            UIManager.put("Label.font", baseFont);
+            UIManager.put("TextField.font", baseFont);
+            UIManager.put("TextArea.font", baseFont);
+            UIManager.put("TabbedPane.font", baseFont);
+
+            // --- Modern TabbedPane Styling ---
+            
+            // 1. Color of the selected tab's background
+            UIManager.put("TabbedPane.selected", Palette.PRIMARY);
+            
+            // 2. Color of the selected tab's text
+            UIManager.put("TabbedPane.selectedForeground", Color.WHITE);
+
+            // 3. Color of unselected tabs (consistency)
+            UIManager.put("TabbedPane.background", Palette.BG_CARD); 
+            
+            // 4. Color of unselected tab text (consistency)
+            UIManager.put("TabbedPane.foreground", Palette.TEXT_SECONDARY); 
+
+            // 5. Remove the 3D borders from the default Metal L&F
+            //    Set shadow/highlight colors to the background to make them disappear
+            UIManager.put("TabbedPane.shadow", Palette.BG_CARD);
+            UIManager.put("TabbedPane.darkShadow", Palette.BG_CARD);
+            UIManager.put("TabbedPane.light", Palette.BG_CARD);
+            UIManager.put("TabbedPane.highlight", Palette.BG_CARD);
+            
+            // 6. Remove the border around the content panel
+            UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
+            
         } catch (Exception ignored) { }
     }
 
@@ -61,24 +111,40 @@ public class GUI extends JFrame {
         setupLAF();
 
         setTitle("EcoRide Car Rental System - Modern Interface");
-        setSize(1000, 700);
+        setSize(1200, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(Palette.BG);
+        getContentPane().setBackground(Palette.BG_MAIN);
 
         // Header
-        JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(new Color(33, 150, 243));
-        headerPanel.setPreferredSize(new Dimension(1000, 80));
-        JLabel titleLabel = new JLabel("EcoRide Car Rental System", JLabel.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titleLabel.setForeground(Color.WHITE);
-        headerPanel.add(titleLabel);
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Palette.BG_CARD);
+        headerPanel.setPreferredSize(new Dimension(1200, 80));
+        headerPanel.setBorder(new MatteBorder(0, 0, 2, 0, Palette.PRIMARY));
+        
+        JLabel titleLabel = new JLabel("EcoRide Car Rental System");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(Palette.TEXT_ACCENT);
+        titleLabel.setBorder(new EmptyBorder(0, 30, 0, 0));
+        
+        JLabel subtitleLabel = new JLabel("Sustainable Transportation Solutions");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitleLabel.setForeground(Palette.TEXT_SECONDARY);
+        subtitleLabel.setBorder(new EmptyBorder(0, 30, 0, 0));
+        
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.setOpaque(false);
+        titlePanel.add(titleLabel, BorderLayout.NORTH);
+        titlePanel.add(subtitleLabel, BorderLayout.CENTER);
+        
+        headerPanel.add(titlePanel, BorderLayout.WEST);
         add(headerPanel, BorderLayout.NORTH);
 
         // Tabs
         tabbedPane = new JTabbedPane();
-        tabbedPane.setFont(new Font("Arial", Font.PLAIN, 14));
+        tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        // tabbedPane.setBackground(Palette.BG_CARD);      // <-- REMOVED (Handled by UIManager)
+        // tabbedPane.setForeground(Palette.TEXT_PRIMARY); // <-- REMOVED (Handled by UIManager)
 
         JPanel dashboardPanel = createDashboardPanel();
         JPanel vehiclesPanel = createVehiclesPanel();
@@ -92,20 +158,13 @@ public class GUI extends JFrame {
         tabbedPane.addTab("Bookings", bookingsPanel);
         tabbedPane.addTab("Invoices", invoicesPanel);
 
-        // Mnemonics/tooltips (SAFE here, tabs already added)
-        tabbedPane.setMnemonicAt(0, KeyEvent.VK_D); // Alt+D
-        tabbedPane.setMnemonicAt(1, KeyEvent.VK_V); // Alt+V
-        tabbedPane.setMnemonicAt(2, KeyEvent.VK_C); // Alt+C
-        tabbedPane.setMnemonicAt(3, KeyEvent.VK_B); // Alt+B
-        tabbedPane.setMnemonicAt(4, KeyEvent.VK_I); // Alt+I
+        // Keyboard shortcuts
+        tabbedPane.setMnemonicAt(0, KeyEvent.VK_D);
+        tabbedPane.setMnemonicAt(1, KeyEvent.VK_V);
+        tabbedPane.setMnemonicAt(2, KeyEvent.VK_C);
+        tabbedPane.setMnemonicAt(3, KeyEvent.VK_B);
+        tabbedPane.setMnemonicAt(4, KeyEvent.VK_I);
 
-        tabbedPane.setToolTipTextAt(0, "Overview & stats");
-        tabbedPane.setToolTipTextAt(1, "Manage vehicles");
-        tabbedPane.setToolTipTextAt(2, "Manage customers");
-        tabbedPane.setToolTipTextAt(3, "Create and manage bookings");
-        tabbedPane.setToolTipTextAt(4, "Generate invoices");
-
-        // Ctrl+1..5 key bindings (also safe)
         InputMap im = tabbedPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = tabbedPane.getActionMap();
         for (int i = 0; i < 5; i++) {
@@ -120,10 +179,12 @@ public class GUI extends JFrame {
 
         // Footer
         JPanel footerPanel = new JPanel();
-        footerPanel.setBackground(new Color(240, 240, 240));
-        footerPanel.setPreferredSize(new Dimension(1000, 30));
-        JLabel footerLabel = new JLabel("© 2023 EcoRide - Sustainable Car Rentals", JLabel.CENTER);
-        footerLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+        footerPanel.setBackground(Palette.BG_CARD);
+        footerPanel.setPreferredSize(new Dimension(1200, 35));
+        footerPanel.setBorder(new MatteBorder(2, 0, 0, 0, Palette.PRIMARY));
+        JLabel footerLabel = new JLabel("© 2024 EcoRide - Sustainable Car Rentals");
+        footerLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        footerLabel.setForeground(Palette.TEXT_MUTED);
         footerPanel.add(footerLabel);
         add(footerPanel, BorderLayout.SOUTH);
 
@@ -133,15 +194,15 @@ public class GUI extends JFrame {
     // ---------- Reusable UI helpers ----------
     private JPanel card(String title) {
         JPanel p = new JPanel(new BorderLayout());
-        p.setBackground(Palette.CARD);
+        p.setBackground(Palette.BG_CARD);
         p.setBorder(new CompoundBorder(
-                new MatteBorder(1, 1, 1, 1, Palette.DIVIDER),
-                new EmptyBorder(16, 16, 16, 16)));
+                new LineBorder(Palette.BORDER, 1),
+                new EmptyBorder(20, 20, 20, 20)));
         if (title != null && !title.isBlank()) {
             JLabel t = new JLabel(title);
-            t.setFont(t.getFont().deriveFont(Font.BOLD, 16f));
-            t.setForeground(Palette.TEXT);
-            t.setBorder(new EmptyBorder(0, 0, 12, 0));
+            t.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            t.setForeground(Palette.TEXT_PRIMARY);
+            t.setBorder(new EmptyBorder(0, 0, 15, 0));
             p.add(t, BorderLayout.NORTH);
         }
         return p;
@@ -149,52 +210,65 @@ public class GUI extends JFrame {
 
     private JButton primaryButton(String text) {
         JButton b = new JButton(text);
-        styleButton(b, Palette.TEAL, Color.WHITE);
+        styleButton(b, Palette.PRIMARY, Color.WHITE);
         return b;
     }
+    
     private JButton dangerButton(String text) {
         JButton b = new JButton(text);
         styleButton(b, Palette.DANGER, Color.WHITE);
         return b;
     }
+    
     private JButton neutralButton(String text) {
         JButton b = new JButton(text);
-        styleButton(b, new Color(236, 239, 241), Palette.TEXT);
+        styleButton(b, Palette.BTN_NEUTRAL_BG, Palette.BTN_NEUTRAL_TEXT);
         return b;
     }
+    
     private void styleButton(JButton b, Color bg, Color fg) {
         b.setBackground(bg);
         b.setForeground(fg);
         b.setFocusPainted(false);
-        b.setBorder(new CompoundBorder(
-                new MatteBorder(1, 1, 1, 1, new Color(0, 0, 0, 25)),
-                new EmptyBorder(10, 16, 10, 16)));
+        b.setBorderPainted(false);
+        b.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        b.setBorder(new EmptyBorder(12, 24, 12, 24));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setOpaque(true);
+        
+        final Color originalBg = bg;
         b.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { b.setBackground(tint(bg, 1.08f)); }
-            @Override public void mouseExited(MouseEvent e) { b.setBackground(bg); }
+            @Override public void mouseEntered(MouseEvent e) { 
+                b.setBackground(brighten(originalBg, 1.15f)); 
+            }
+            @Override public void mouseExited(MouseEvent e) { 
+                b.setBackground(originalBg); 
+            }
         });
     }
-    private static Color tint(Color c, float factor) {
+    
+    private static Color brighten(Color c, float factor) {
         int r = Math.min(255, Math.round(c.getRed() * factor));
         int g = Math.min(255, Math.round(c.getGreen() * factor));
         int b = Math.min(255, Math.round(c.getBlue() * factor));
         return new Color(r, g, b);
     }
+    
     private JScrollPane niceScroll(JComponent comp) {
         JScrollPane sp = new JScrollPane(comp);
-        sp.setBorder(new MatteBorder(1, 1, 1, 1, Palette.DIVIDER));
+        sp.setBorder(new LineBorder(Palette.BORDER, 1));
+        sp.getViewport().setBackground(Palette.BG_LIGHT);
         return sp;
     }
 
     // ---------- Panels ----------
     private JPanel createDashboardPanel() {
         JPanel grid = new JPanel(new GridBagLayout());
-        grid.setOpaque(false);
-        grid.setBorder(new EmptyBorder(12, 12, 12, 12));
+        grid.setBackground(Palette.BG_MAIN);
+        grid.setBorder(new EmptyBorder(16, 16, 16, 16));
 
         GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(8, 8, 8, 8);
+        gc.insets = new Insets(10, 10, 10, 10);
         gc.gridx = 0; gc.gridy = 0;
         gc.weightx = 1; gc.weighty = 0.6;
         gc.fill = GridBagConstraints.BOTH;
@@ -206,31 +280,35 @@ public class GUI extends JFrame {
 
         // Welcome card
         gc.gridx = 1;
-        JPanel welcome = card("Welcome");
+        JPanel welcome = card("Welcome to EcoRide");
         JTextArea welcomeText = new JTextArea(
-            "Manage your eco-friendly vehicle rentals efficiently.\n" +
-            "Use the tabs above to navigate through sections.\n\n" +
-            "Shortcuts: Ctrl+1 Dashboard • Ctrl+2 Vehicles • Ctrl+3 Customers\n" +
-            "           Ctrl+4 Bookings  • Ctrl+5 Invoices");
+                "Manage your eco-friendly vehicle rentals efficiently.\n\n" +
+                "Quick Navigation:\n" +
+                "   Ctrl+1 - Dashboard\n" +
+                "   Ctrl+2 - Vehicles\n" +
+                "   Ctrl+3 - Customers\n" +
+                "   Ctrl+4 - Bookings\n" +
+                "   Ctrl+5 - Invoices\n\n" +
+                "Start by adding vehicles and registering customers!");
         welcomeText.setEditable(false);
         welcomeText.setLineWrap(true);
         welcomeText.setWrapStyleWord(true);
-        welcomeText.setBackground(Palette.CARD);
+        welcomeText.setBackground(Palette.BG_CARD);
         welcomeText.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        welcomeText.setForeground(Palette.TEXT);
+        welcomeText.setForeground(Palette.TEXT_SECONDARY);
         welcome.add(welcomeText, BorderLayout.CENTER);
         grid.add(welcome, gc);
 
         // Quick actions
         gc.gridx = 0; gc.gridy = 1; gc.weighty = 0.4;
         JPanel actions = card("Quick Actions");
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 4));
-        row.setOpaque(false);
-        JButton viewVehiclesBtn = new JButton("View All Vehicles");
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        row.setBackground(Palette.BG_CARD);
+        JButton viewVehiclesBtn = neutralButton("View All Vehicles");
         viewVehiclesBtn.addActionListener(e -> selectTabSafe(1));
-        JButton addCustomerBtn = new JButton("Register New Customer");
+        JButton addCustomerBtn = primaryButton("Register Customer");
         addCustomerBtn.addActionListener(e -> selectTabSafe(2));
-        JButton makeBookingBtn = new JButton("Make a Booking");
+        JButton makeBookingBtn = primaryButton("Make Booking");
         makeBookingBtn.addActionListener(e -> selectTabSafe(3));
         row.add(viewVehiclesBtn); row.add(addCustomerBtn); row.add(makeBookingBtn);
         actions.add(row, BorderLayout.CENTER);
@@ -242,37 +320,43 @@ public class GUI extends JFrame {
         outputArea = new JTextArea(8, 40);
         outputArea.setEditable(false);
         outputArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        outputArea.setBackground(Palette.BG_LIGHT);
+        outputArea.setForeground(Palette.TEXT_PRIMARY);
+        outputArea.setText("System ready. Welcome to EcoRide!");
         msgs.add(niceScroll(outputArea), BorderLayout.CENTER);
         grid.add(msgs, gc);
 
-        // (REMOVED) tabbedPane.setMnemonicAt(...) here – caused IndexOutOfBoundsException
         return grid;
     }
 
     private JPanel buildStatsGrid() {
-        JPanel stats = new JPanel(new GridLayout(2, 2, 12, 12));
-        stats.setOpaque(false);
+        JPanel stats = new JPanel(new GridLayout(2, 2, 16, 16));
+        stats.setBackground(Palette.BG_CARD);
         stats.add(statChip("Total Vehicles", String.valueOf(rentalSystem.getAllVehicles().size()), Palette.INFO));
-        stats.add(statChip("Total Customers", String.valueOf(rentalSystem.getCustomerCount()), Palette.TEAL));
-        stats.add(statChip("Total Bookings", String.valueOf(rentalSystem.getBookingCount()), Palette.AMBER));
+        stats.add(statChip("Total Customers", String.valueOf(rentalSystem.getCustomerCount()), Palette.PRIMARY));
+        stats.add(statChip("Total Bookings", String.valueOf(rentalSystem.getBookingCount()), Palette.WARNING));
         long avail = rentalSystem.getAllVehicles().stream()
                 .filter(v -> "Available".equalsIgnoreCase(v.getAvailabilityStatus()))
                 .count();
-        stats.add(statChip("Available Vehicles", String.valueOf(avail), Palette.SUCCESS));
+        stats.add(statChip("Available", String.valueOf(avail), Palette.SUCCESS));
         return stats;
     }
 
-    private JPanel statChip(String title, String value, Color color) {
-        JPanel chip = new JPanel(new BorderLayout());
-        chip.setBackground(Palette.CARD);
-        chip.setBorder(new CompoundBorder(new MatteBorder(2, 2, 2, 2, tint(color, 0.95f)),
-                                          new EmptyBorder(12, 12, 12, 12)));
+    private JPanel statChip(String title, String value, Color accentColor) {
+        JPanel chip = new JPanel(new BorderLayout(0, 8));
+        chip.setBackground(Palette.BG_LIGHT);
+        chip.setBorder(new CompoundBorder(
+            new LineBorder(accentColor, 2, true),
+            new EmptyBorder(16, 16, 16, 16)));
+        
         JLabel t = new JLabel(title);
-        t.setForeground(Palette.MUTED);
-        t.setFont(t.getFont().deriveFont(Font.BOLD, 13f));
+        t.setForeground(Palette.TEXT_MUTED);
+        t.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        
         JLabel v = new JLabel(value);
-        v.setForeground(Palette.TEXT);
-        v.setFont(v.getFont().deriveFont(Font.BOLD, 22f));
+        v.setForeground(accentColor);
+        v.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        
         chip.add(t, BorderLayout.NORTH);
         chip.add(v, BorderLayout.CENTER);
         return chip;
@@ -280,23 +364,25 @@ public class GUI extends JFrame {
 
     private JPanel createVehiclesPanel() {
         JPanel root = new JPanel(new BorderLayout(12, 12));
-        root.setOpaque(false);
-        root.setBorder(new EmptyBorder(12, 12, 12, 12));
+        root.setBackground(Palette.BG_MAIN);
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
 
-        JPanel controls = card("Vehicle Actions");
-        JPanel grid = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
-        grid.setOpaque(false);
-        JButton viewBtn = neutralButton("View Vehicles");
+        JPanel controls = card("Vehicle Management");
+        JPanel grid = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        grid.setBackground(Palette.BG_CARD);
+        JButton viewBtn = neutralButton("View All");
         JButton addBtn = primaryButton("Add Vehicle");
-        JButton updateBtn = primaryButton("Update Vehicle");
-        JButton deleteBtn = dangerButton("Delete Vehicle");
+        JButton updateBtn = neutralButton("Update");
+        JButton deleteBtn = dangerButton("Delete");
         grid.add(viewBtn); grid.add(addBtn); grid.add(updateBtn); grid.add(deleteBtn);
         controls.add(grid, BorderLayout.CENTER);
 
         JTextArea vehiclesArea = new JTextArea();
         vehiclesArea.setEditable(false);
         vehiclesArea.setFont(new Font("Consolas", Font.PLAIN, 13));
-        JPanel listCard = card("Vehicles");
+        vehiclesArea.setBackground(Palette.BG_LIGHT);
+        vehiclesArea.setForeground(Palette.TEXT_PRIMARY);
+        JPanel listCard = card("Vehicle List");
         listCard.add(niceScroll(vehiclesArea), BorderLayout.CENTER);
 
         viewBtn.addActionListener(e -> viewVehicles(vehiclesArea));
@@ -311,23 +397,25 @@ public class GUI extends JFrame {
 
     private JPanel createCustomersPanel() {
         JPanel root = new JPanel(new BorderLayout(12, 12));
-        root.setOpaque(false);
-        root.setBorder(new EmptyBorder(12, 12, 12, 12));
+        root.setBackground(Palette.BG_MAIN);
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
 
-        JPanel controls = card("Customer Actions");
-        JPanel grid = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
-        grid.setOpaque(false);
+        JPanel controls = card("Customer Management");
+        JPanel grid = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        grid.setBackground(Palette.BG_CARD);
         JButton registerBtn = primaryButton("Register Customer");
-        JButton viewBtn = neutralButton("View Customers");
-        JButton updateBtn = primaryButton("Update Customer");
-        JButton deleteBtn = dangerButton("Delete Customer");
+        JButton viewBtn = neutralButton("View All");
+        JButton updateBtn = neutralButton("Update");
+        JButton deleteBtn = dangerButton("Delete");
         grid.add(registerBtn); grid.add(viewBtn); grid.add(updateBtn); grid.add(deleteBtn);
         controls.add(grid, BorderLayout.CENTER);
 
         JTextArea area = new JTextArea();
         area.setEditable(false);
         area.setFont(new Font("Consolas", Font.PLAIN, 13));
-        JPanel listCard = card("Customers");
+        area.setBackground(Palette.BG_LIGHT);
+        area.setForeground(Palette.TEXT_PRIMARY);
+        JPanel listCard = card("Customer List");
         listCard.add(niceScroll(area), BorderLayout.CENTER);
 
         registerBtn.addActionListener(e -> registerCustomerDialog(area));
@@ -342,24 +430,26 @@ public class GUI extends JFrame {
 
     private JPanel createBookingsPanel() {
         JPanel root = new JPanel(new BorderLayout(12, 12));
-        root.setOpaque(false);
-        root.setBorder(new EmptyBorder(12, 12, 12, 12));
+        root.setBackground(Palette.BG_MAIN);
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
 
-        JPanel controls = card("Booking Actions");
-        JPanel grid = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
-        grid.setOpaque(false);
+        JPanel controls = card("Booking Management");
+        JPanel grid = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        grid.setBackground(Palette.BG_CARD);
         JButton makeBookingBtn = primaryButton("Make Booking");
-        JButton searchBtn = neutralButton("Search Bookings");
-        JButton viewBtn = neutralButton("View Bookings");
-        JButton updateBtn = primaryButton("Update Booking");
-        JButton deleteBtn = dangerButton("Delete Booking");
+        JButton searchBtn = neutralButton("Search");
+        JButton viewBtn = neutralButton("View All");
+        JButton updateBtn = neutralButton("Update");
+        JButton deleteBtn = dangerButton("Delete");
         grid.add(makeBookingBtn); grid.add(searchBtn); grid.add(viewBtn); grid.add(updateBtn); grid.add(deleteBtn);
         controls.add(grid, BorderLayout.CENTER);
 
         JTextArea area = new JTextArea();
         area.setEditable(false);
         area.setFont(new Font("Consolas", Font.PLAIN, 13));
-        JPanel listCard = card("Bookings");
+        area.setBackground(Palette.BG_LIGHT);
+        area.setForeground(Palette.TEXT_PRIMARY);
+        JPanel listCard = card("Booking List");
         listCard.add(niceScroll(area), BorderLayout.CENTER);
 
         makeBookingBtn.addActionListener(e -> makeBookingDialog(area));
@@ -375,19 +465,21 @@ public class GUI extends JFrame {
 
     private JPanel createInvoicesPanel() {
         JPanel root = new JPanel(new BorderLayout(12, 12));
-        root.setOpaque(false);
-        root.setBorder(new EmptyBorder(12, 12, 12, 12));
+        root.setBackground(Palette.BG_MAIN);
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
 
-        JPanel controls = card("Invoice");
+        JPanel controls = card("Invoice Generation");
         JButton generateBtn = primaryButton("Generate Invoice");
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
-        row.setOpaque(false);
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        row.setBackground(Palette.BG_CARD);
         row.add(generateBtn);
         controls.add(row, BorderLayout.CENTER);
 
         JTextArea invoicesArea = new JTextArea();
         invoicesArea.setEditable(false);
         invoicesArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        invoicesArea.setBackground(Palette.BG_LIGHT);
+        invoicesArea.setForeground(Palette.TEXT_PRIMARY);
         JPanel listCard = card("Invoice Preview");
         listCard.add(niceScroll(invoicesArea), BorderLayout.CENTER);
         outputArea = invoicesArea;
@@ -401,33 +493,34 @@ public class GUI extends JFrame {
 
     // ---------- Data actions ----------
     private void viewVehicles(JTextArea out) {
-        StringBuilder sb = new StringBuilder("Available Vehicles:\n\n");
-        rentalSystem.getAllVehicles().forEach(v -> sb.append(v).append("\n"));
+        StringBuilder sb = new StringBuilder("AVAILABLE VEHICLES\n");
+        sb.append("=".repeat(70)).append("\n\n");
+        rentalSystem.getAllVehicles().forEach(v -> sb.append(v).append("\n\n"));
         out.setText(sb.toString());
     }
 
     private void addVehicleDialog(JTextArea out) {
-        JDialog d = modal("Add Vehicle", 420, 320);
+        JDialog d = modal("Add New Vehicle", 500, 380);
         JPanel f = formGrid(5);
         JTextField id = tf(), model = tf(), category = tf(), price = tf(), status = tf("Available");
 
-        f.add(new JLabel("Car ID:")); f.add(id);
-        f.add(new JLabel("Model:")); f.add(model);
-        f.add(new JLabel("Category:")); f.add(category);
-        f.add(new JLabel("Daily Price:")); f.add(price);
-        f.add(new JLabel("Status:")); f.add(status);
+        f.add(label("Car ID:")); f.add(id);
+        f.add(label("Model:")); f.add(model);
+        f.add(label("Category:")); f.add(category);
+        f.add(label("Daily Price:")); f.add(price);
+        f.add(label("Status:")); f.add(status);
 
-        JButton add = primaryButton("Add");
+        JButton add = primaryButton("Add Vehicle");
         add.addActionListener(e -> {
             try {
                 EcoRide_Vehicle v = new EcoRide_Vehicle(
                         id.getText().trim(), model.getText().trim(), category.getText().trim(),
                         Double.parseDouble(price.getText().trim()), status.getText().trim());
                 rentalSystem.addVehicle(v);
-                out.setText("✅ Vehicle added successfully.");
+                out.setText("[SUCCESS] Vehicle added successfully!\n\n" + v);
                 d.dispose();
             } catch (NumberFormatException ex) {
-                warn(d, "Invalid price. Use a number like 7500 or 7500.00.");
+                warn(d, "Invalid price. Please enter a valid number.");
             }
         });
 
@@ -437,21 +530,21 @@ public class GUI extends JFrame {
     }
 
     private void registerCustomerDialog(JTextArea out) {
-        JDialog d = modal("Register Customer", 420, 320);
+        JDialog d = modal("Register New Customer", 500, 350);
         JPanel f = formGrid(4);
         JTextField nic = tf(), name = tf(), contact = tf(), email = tf();
 
-        f.add(new JLabel("NIC/Passport:")); f.add(nic);
-        f.add(new JLabel("Name:")); f.add(name);
-        f.add(new JLabel("Contact:")); f.add(contact);
-        f.add(new JLabel("Email:")); f.add(email);
+        f.add(label("NIC/Passport:")); f.add(nic);
+        f.add(label("Full Name:")); f.add(name);
+        f.add(label("Contact Number:")); f.add(contact);
+        f.add(label("Email Address:")); f.add(email);
 
         JButton add = primaryButton("Register");
         add.addActionListener(e -> {
             EcoRide_Customer c = new EcoRide_Customer(
                     nic.getText().trim(), name.getText().trim(), contact.getText().trim(), email.getText().trim());
             rentalSystem.registerCustomer(c);
-            out.setText("✅ Customer registered successfully.");
+            out.setText("[SUCCESS] Customer registered successfully!\n\n" + c);
             d.dispose();
         });
 
@@ -461,18 +554,18 @@ public class GUI extends JFrame {
     }
 
     private void makeBookingDialog(JTextArea out) {
-        JDialog d = modal("Make Booking", 460, 380);
+        JDialog d = modal("Make New Booking", 520, 420);
         JPanel f = formGrid(6);
         JTextField id = tf(), nic = tf(), vid = tf(), start = tf("YYYY-MM-DD"), end = tf("YYYY-MM-DD"), km = tf();
 
-        f.add(new JLabel("Booking ID:")); f.add(id);
-        f.add(new JLabel("Customer NIC:")); f.add(nic);
-        f.add(new JLabel("Vehicle ID:")); f.add(vid);
-        f.add(new JLabel("Start Date:")); f.add(start);
-        f.add(new JLabel("End Date:")); f.add(end);
-        f.add(new JLabel("Total KM:")); f.add(km);
+        f.add(label("Booking ID:")); f.add(id);
+        f.add(label("Customer NIC:")); f.add(nic);
+        f.add(label("Vehicle ID:")); f.add(vid);
+        f.add(label("Start Date:")); f.add(start);
+        f.add(label("End Date:")); f.add(end);
+        f.add(label("Total KM:")); f.add(km);
 
-        JButton book = primaryButton("Book");
+        JButton book = primaryButton("Create Booking");
         book.addActionListener(e -> {
             try {
                 EcoRide_Customer c = rentalSystem.getCustomer(nic.getText().trim());
@@ -486,15 +579,15 @@ public class GUI extends JFrame {
 
                 EcoRide_Booking b = new EcoRide_Booking(id.getText().trim(), c, v, s, en, totalKm);
                 if (rentalSystem.makeBooking(b)) {
-                    out.setText("✅ Booking successful.");
+                    out.setText("[SUCCESS] Booking successful!\n\n" + b);
                     d.dispose();
                 } else {
-                    warn(d, "Booking failed. Check availability or dates.");
+                    warn(d, "Booking failed. Check vehicle availability or dates.");
                 }
             } catch (DateTimeParseException ex) {
-                warn(d, "Invalid date format. Use YYYY-MM-DD.");
+                warn(d, "Invalid date format. Please use YYYY-MM-DD.");
             } catch (NumberFormatException ex) {
-                warn(d, "Invalid KM. Use a whole number.");
+                warn(d, "Invalid KM value. Please enter a whole number.");
             }
         });
 
@@ -505,22 +598,25 @@ public class GUI extends JFrame {
 
     private void searchBookingsDialog(JTextArea out) {
         String name = JOptionPane.showInputDialog(this, "Enter Customer Name:");
-        if (name != null) {
-            StringBuilder sb = new StringBuilder("Bookings for " + name + ":\n\n");
-            for (EcoRide_Booking b : rentalSystem.searchBookingsByName(name)) sb.append(b).append("\n");
+        if (name != null && !name.trim().isEmpty()) {
+            StringBuilder sb = new StringBuilder("SEARCH RESULTS FOR: " + name + "\n");
+            sb.append("=".repeat(70)).append("\n\n");
+            for (EcoRide_Booking b : rentalSystem.searchBookingsByName(name)) sb.append(b).append("\n\n");
             out.setText(sb.toString());
         }
     }
 
     private void viewCustomers(JTextArea out) {
-        StringBuilder sb = new StringBuilder("Registered Customers:\n\n");
-        rentalSystem.getAllCustomers().forEach(c -> sb.append(c).append("\n"));
+        StringBuilder sb = new StringBuilder("REGISTERED CUSTOMERS\n");
+        sb.append("=".repeat(70)).append("\n\n");
+        rentalSystem.getAllCustomers().forEach(c -> sb.append(c).append("\n\n"));
         out.setText(sb.toString());
     }
 
     private void viewBookings(JTextArea out) {
-        StringBuilder sb = new StringBuilder("All Bookings:\n\n");
-        rentalSystem.getAllBookings().forEach(b -> sb.append(b).append("\n"));
+        StringBuilder sb = new StringBuilder("ALL BOOKINGS\n");
+        sb.append("=".repeat(70)).append("\n\n");
+        rentalSystem.getAllBookings().forEach(b -> sb.append(b).append("\n\n"));
         out.setText(sb.toString());
     }
 
@@ -530,26 +626,26 @@ public class GUI extends JFrame {
         EcoRide_Vehicle existing = rentalSystem.getVehicle(carId);
         if (existing == null) { warn(this, "Vehicle not found."); return; }
 
-        JDialog d = modal("Update Vehicle", 440, 320);
+        JDialog d = modal("Update Vehicle", 500, 350);
         JPanel f = formGrid(4);
         JTextField model = tf(existing.getModel());
         JTextField category = tf(existing.getCategory());
         JTextField price = tf(String.valueOf(existing.getDailyRentalPrice()));
         JTextField status = tf(existing.getAvailabilityStatus());
 
-        f.add(new JLabel("Model:")); f.add(model);
-        f.add(new JLabel("Category:")); f.add(category);
-        f.add(new JLabel("Daily Price:")); f.add(price);
-        f.add(new JLabel("Status:")); f.add(status);
+        f.add(label("Model:")); f.add(model);
+        f.add(label("Category:")); f.add(category);
+        f.add(label("Daily Price:")); f.add(price);
+        f.add(label("Status:")); f.add(status);
 
-        JButton update = primaryButton("Update");
+        JButton update = primaryButton("Update Vehicle");
         update.addActionListener(e -> {
             try {
                 EcoRide_Vehicle v = new EcoRide_Vehicle(
                         carId, model.getText().trim(), category.getText().trim(),
                         Double.parseDouble(price.getText().trim()), status.getText().trim());
                 if (rentalSystem.updateVehicle(carId, v)) {
-                    out.setText("✅ Vehicle updated successfully.");
+                    out.setText("[SUCCESS] Vehicle updated successfully!\n\n" + v);
                     d.dispose();
                 } else {
                     warn(d, "Update failed.");
@@ -565,8 +661,8 @@ public class GUI extends JFrame {
     private void deleteVehicleDialog(JTextArea out) {
         String carId = JOptionPane.showInputDialog(this, "Enter Vehicle ID to delete:");
         if (carId == null) return;
-        if (rentalSystem.deleteVehicle(carId)) out.setText("🗑️ Vehicle deleted.");
-        else warn(this, "Vehicle not found or delete failed.");
+        if (rentalSystem.deleteVehicle(carId)) out.setText("[DELETED] Vehicle deleted successfully.");
+        else warn(this, "Vehicle not found or deletion failed.");
     }
 
     private void updateCustomerDialog(JTextArea out) {
@@ -575,21 +671,21 @@ public class GUI extends JFrame {
         EcoRide_Customer existing = rentalSystem.getCustomer(nic);
         if (existing == null) { warn(this, "Customer not found."); return; }
 
-        JDialog d = modal("Update Customer", 440, 300);
+        JDialog d = modal("Update Customer", 500, 330);
         JPanel f = formGrid(3);
         JTextField name = tf(existing.getName());
         JTextField contact = tf(existing.getContactNumber());
         JTextField email = tf(existing.getEmail());
 
-        f.add(new JLabel("Name:")); f.add(name);
-        f.add(new JLabel("Contact:")); f.add(contact);
-        f.add(new JLabel("Email:")); f.add(email);
+        f.add(label("Full Name:")); f.add(name);
+        f.add(label("Contact Number:")); f.add(contact);
+        f.add(label("Email Address:")); f.add(email);
 
-        JButton update = primaryButton("Update");
+        JButton update = primaryButton("Update Customer");
         update.addActionListener(e -> {
             EcoRide_Customer c = new EcoRide_Customer(nic, name.getText().trim(), contact.getText().trim(), email.getText().trim());
             if (rentalSystem.updateCustomer(nic, c)) {
-                out.setText("✅ Customer updated successfully.");
+                out.setText("[SUCCESS] Customer updated successfully!\n\n" + c);
                 d.dispose();
             } else warn(d, "Update failed.");
         });
@@ -602,8 +698,8 @@ public class GUI extends JFrame {
     private void deleteCustomerDialog(JTextArea out) {
         String nic = JOptionPane.showInputDialog(this, "Enter Customer NIC to delete:");
         if (nic == null) return;
-        if (rentalSystem.deleteCustomer(nic)) out.setText("🗑️ Customer deleted.");
-        else warn(this, "Customer not found or delete failed.");
+        if (rentalSystem.deleteCustomer(nic)) out.setText("[DELETED] Customer deleted successfully.");
+        else warn(this, "Customer not found or deletion failed.");
     }
 
     private void updateBookingDialog(JTextArea out) {
@@ -612,7 +708,7 @@ public class GUI extends JFrame {
         EcoRide_Booking existing = rentalSystem.getBooking(bookingId);
         if (existing == null) { warn(this, "Booking not found."); return; }
 
-        JDialog d = modal("Update Booking", 460, 360);
+        JDialog d = modal("Update Booking", 520, 400);
         JPanel f = formGrid(5);
         JTextField nic = tf(existing.getCustomer().getNicOrPassport());
         JTextField vid = tf(existing.getVehicle().getCarId());
@@ -620,13 +716,13 @@ public class GUI extends JFrame {
         JTextField end = tf(existing.getEndDate().toString());
         JTextField km = tf(String.valueOf(existing.getTotalKm()));
 
-        f.add(new JLabel("Customer NIC:")); f.add(nic);
-        f.add(new JLabel("Vehicle ID:")); f.add(vid);
-        f.add(new JLabel("Start Date:")); f.add(start);
-        f.add(new JLabel("End Date:")); f.add(end);
-        f.add(new JLabel("Total KM:")); f.add(km);
+        f.add(label("Customer NIC:")); f.add(nic);
+        f.add(label("Vehicle ID:")); f.add(vid);
+        f.add(label("Start Date:")); f.add(start);
+        f.add(label("End Date:")); f.add(end);
+        f.add(label("Total KM:")); f.add(km);
 
-        JButton update = primaryButton("Update");
+        JButton update = primaryButton("Update Booking");
         update.addActionListener(e -> {
             try {
                 EcoRide_Customer c = rentalSystem.getCustomer(nic.getText().trim());
@@ -638,13 +734,12 @@ public class GUI extends JFrame {
                 int totalKm = Integer.parseInt(km.getText().trim());
 
                 EcoRide_Booking upd = new EcoRide_Booking(bookingId, c, v, s, en, totalKm);
-                // Requires rentalSystem.updateBooking(...)
                 if (rentalSystem.updateBooking(bookingId, upd)) {
-                    out.setText("✅ Booking updated successfully.");
+                    out.setText("[SUCCESS] Booking updated successfully!\n\n" + upd);
                     d.dispose();
                 } else warn(d, "Update failed.");
             } catch (DateTimeParseException ex) { warn(d, "Invalid date format. Use YYYY-MM-DD."); }
-              catch (NumberFormatException ex) { warn(d, "Invalid KM."); }
+              catch (NumberFormatException ex) { warn(d, "Invalid KM value."); }
         });
 
         d.add(f, BorderLayout.CENTER);
@@ -655,53 +750,71 @@ public class GUI extends JFrame {
     private void deleteBookingDialog(JTextArea out) {
         String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID to delete:");
         if (bookingId == null) return;
-        // Requires rentalSystem.deleteBooking(...)
-        if (rentalSystem.deleteBooking(bookingId)) out.setText("🗑️ Booking deleted.");
-        else warn(this, "Booking not found or delete failed.");
+        if (rentalSystem.deleteBooking(bookingId)) out.setText("[DELETED] Booking deleted successfully.");
+        else warn(this, "Booking not found or deletion failed.");
     }
 
     private void generateInvoiceDialog() {
-        String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID:");
+        String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID for invoice:");
         if (bookingId == null) return;
         EcoRide_Booking b = rentalSystem.getBooking(bookingId);
         if (b == null) { warn(this, "Booking not found."); return; }
         EcoRide_Invoice invoice = rentalSystem.generateInvoice(b);
-        outputArea.setText(invoice.toString());
+        outputArea.setText("INVOICE GENERATED\n" + "=".repeat(70) + "\n\n" + invoice.toString());
     }
 
     // ---------- Small UI utilities ----------
     private JDialog modal(String title, int w, int h) {
         JDialog d = new JDialog(this, title, true);
-        d.setLayout(new BorderLayout(12, 12));
-        d.getContentPane().setBackground(Palette.CARD);
+        d.setLayout(new BorderLayout(16, 16));
+        d.getContentPane().setBackground(Palette.BG_CARD);
         d.setSize(w, h);
         d.setLocationRelativeTo(this);
-        d.getRootPane().setBorder(new EmptyBorder(12, 12, 12, 12));
+        d.getRootPane().setBorder(new EmptyBorder(20, 20, 20, 20));
         return d;
     }
+    
     private JPanel formGrid(int rows) {
-        JPanel p = new JPanel(new GridLayout(rows, 2, 10, 10));
-        p.setOpaque(false);
+        JPanel p = new JPanel(new GridLayout(rows, 2, 12, 12));
+        p.setBackground(Palette.BG_CARD);
         return p;
     }
+    
+    private JLabel label(String text) {
+        JLabel l = new JLabel(text);
+        l.setForeground(Palette.TEXT_PRIMARY);
+        l.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        return l;
+    }
+    
     private JTextField tf() { return tf(""); }
+    
     private JTextField tf(String text) {
         JTextField t = new JTextField(text);
-        t.setBorder(new CompoundBorder(new MatteBorder(1, 1, 1, 1, Palette.DIVIDER),
-                                       new EmptyBorder(8, 8, 8, 8)));
+        t.setBackground(Palette.BG_LIGHT);
+        t.setForeground(Palette.TEXT_PRIMARY);
+        t.setCaretColor(Palette.TEXT_PRIMARY);
+        t.setBorder(new CompoundBorder(
+            new LineBorder(Palette.BORDER, 1),
+            new EmptyBorder(10, 12, 10, 12)));
+        t.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         return t;
     }
+    
     private JPanel footerRight(JButton b) {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        p.setOpaque(false);
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        p.setBackground(Palette.BG_CARD);
         p.add(b);
         return p;
     }
+    
     private void warn(Component parent, String msg) {
-        UIManager.put("OptionPane.messageFont", new Font("Segoe UI", Font.PLAIN, 14));
-        UIManager.put("OptionPane.buttonFont", new Font("Segoe UI", Font.PLAIN, 14));
-        JOptionPane.showMessageDialog(parent, msg, "EcoRide", JOptionPane.WARNING_MESSAGE);
-        // restore defaults if needed
+        JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE);
+        pane.setBackground(Palette.BG_CARD);
+        pane.setForeground(Palette.TEXT_PRIMARY);
+        JDialog dialog = pane.createDialog(parent, "EcoRide");
+        dialog.getContentPane().setBackground(Palette.BG_CARD);
+        dialog.setVisible(true);
     }
 
     public static void main(String[] args) {
