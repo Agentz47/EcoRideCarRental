@@ -57,3 +57,5 @@ logs/
 #other docs
 *.docx
 *.md
+ClassDiagram.txt
+TestCases.txt
