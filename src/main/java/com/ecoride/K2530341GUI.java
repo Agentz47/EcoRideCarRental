@@ -878,9 +878,9 @@ public class K2530341GUI extends JFrame {
     }
 
     private void makeBookingDialog(JTextArea out) {
-        JDialog d = modal("Make New Booking", 520, 420);
+        JDialog d = modal("Make New Booking", 520, 450);
         JPanel f = formGrid(6);
-        JTextField id = tf(), nic = tf(), vid = tf(), start = tf("YYYY-MM-DD"), end = tf("YYYY-MM-DD"), km = tf();
+        JTextField id = tf(), nic = tf(), start = tf("YYYY-MM-DD"), end = tf("YYYY-MM-DD"), km = tf();
 
         // Pre-fill NIC for customers
         if (currentUser != null && !currentUser.isAdmin()) {
@@ -888,9 +888,22 @@ public class K2530341GUI extends JFrame {
             nic.setEditable(false);
         }
 
+        // Create vehicle dropdown with available vehicles
+        java.util.List<String> vehicleOptions = new java.util.ArrayList<>();
+        for (K2530341Vehicle v : rentalSystem.getAllVehicles()) {
+            if (v.isAvailable()) {
+                vehicleOptions.add(v.getCarId() + " - " + v.getModel());
+            }
+        }
+        JComboBox<String> vehicleCombo = new JComboBox<>(vehicleOptions.toArray(new String[0]));
+        vehicleCombo.setBackground(Palette.BG_LIGHT);
+        vehicleCombo.setForeground(Palette.TEXT_PRIMARY);
+        vehicleCombo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        vehicleCombo.setMaximumRowCount(5); // Make dropdown scrollable
+
         f.add(label("Booking ID:")); f.add(id);
         f.add(label("Customer NIC:")); f.add(nic);
-        f.add(label("Vehicle ID:")); f.add(vid);
+        f.add(label("Vehicle:")); f.add(vehicleCombo);
         f.add(label("Start Date:")); f.add(start);
         f.add(label("End Date:")); f.add(end);
         f.add(label("Total KM:")); f.add(km);
@@ -908,7 +921,14 @@ public class K2530341GUI extends JFrame {
             }
             try {
                 K2530341Customer c = rentalSystem.getCustomer(nic.getText().trim());
-                K2530341Vehicle v = rentalSystem.getVehicle(vid.getText().trim());
+                // Extract vehicle ID from the selected combo box item
+                String selectedVehicle = (String) vehicleCombo.getSelectedItem();
+                if (selectedVehicle == null) {
+                    warn(d, "Please select a vehicle.");
+                    return;
+                }
+                String vehicleId = selectedVehicle.split(" - ")[0]; // Get the ID part before " - "
+                K2530341Vehicle v = rentalSystem.getVehicle(vehicleId);
                 if (c == null) { warn(d, "Customer not found."); return; }
                 if (v == null) { warn(d, "Vehicle not found."); return; }
 
