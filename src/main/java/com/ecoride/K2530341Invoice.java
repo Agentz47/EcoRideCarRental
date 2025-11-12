@@ -61,7 +61,8 @@ public class K2530341Invoice {
         }
         basePrice = dailyFee * days;
 
-        int extraKm = Math.max(0, booking.getTotalKm() - freeKm);
+        int totalFreeKm = freeKm * (int)days;
+        int extraKm = Math.max(0, booking.getTotalKm() - totalFreeKm);
         extraKmCharge = extraKm * extraKmRate;
 
         // Discount: 10% if 7+ days, applied before tax

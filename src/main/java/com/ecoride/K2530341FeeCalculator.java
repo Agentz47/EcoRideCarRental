@@ -12,11 +12,17 @@ public class K2530341FeeCalculator {
     private static final double HYBRID_DAILY = 7500.0;
     private static final double ELECTRIC_DAILY = 10000.0;
     private static final double LUXURY_SUV_DAILY = 15000.0;
+    private static final double RACING_DAILY = 20000.0;
+    private static final double OFF_ROAD_SUV_DAILY = 18000.0;
+    private static final double SUPER_LUXURY_DAILY = 25000.0;
 
     private static final int COMPACT_PETROL_FREE_KM = 100;
     private static final int HYBRID_FREE_KM = 150;
     private static final int ELECTRIC_FREE_KM = 200;
     private static final int LUXURY_SUV_FREE_KM = 250;
+    private static final int RACING_FREE_KM = 300;
+    private static final int OFF_ROAD_SUV_FREE_KM = 200;
+    private static final int SUPER_LUXURY_FREE_KM = 400;
 
     private static final double COMPACT_PETROL_EXTRA_RATE = 50.0;
     private static final double HYBRID_EXTRA_RATE = 60.0;
@@ -79,6 +85,9 @@ public class K2530341FeeCalculator {
             case "hybrid": return HYBRID_DAILY;
             case "electric": return ELECTRIC_DAILY;
             case "luxury suv": return LUXURY_SUV_DAILY;
+            case "racing": return RACING_DAILY;
+            case "off road suv": return OFF_ROAD_SUV_DAILY;
+            case "super luxury": return SUPER_LUXURY_DAILY;
             default: return 0.0;
         }
     }
@@ -92,6 +101,9 @@ public class K2530341FeeCalculator {
             case "hybrid": return HYBRID_FREE_KM;
             case "electric": return ELECTRIC_FREE_KM;
             case "luxury suv": return LUXURY_SUV_FREE_KM;
+            case "racing": return RACING_FREE_KM;
+            case "off road suv": return OFF_ROAD_SUV_FREE_KM;
+            case "super luxury": return SUPER_LUXURY_FREE_KM;
             default: return 0;
         }
     }
