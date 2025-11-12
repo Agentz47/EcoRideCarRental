@@ -12,6 +12,7 @@ public class K2530341User {
     private String passwordHash;
     private String role; // "Customer" or "Admin"
     private String employeeId; // Only for Admin role
+    private String nicOrPassport; // NIC for customers
 
     // Constructor
     public K2530341User(String username, String password, String role, String employeeId) {
@@ -19,6 +20,12 @@ public class K2530341User {
         this.passwordHash = hashPassword(password);
         this.role = role;
         this.employeeId = employeeId;
+    }
+
+    // Constructor for customers with NIC
+    public K2530341User(String username, String password, String role, String employeeId, String nicOrPassport) {
+        this(username, password, role, employeeId);
+        this.nicOrPassport = nicOrPassport;
     }
 
     // Hash password using SHA-256
@@ -53,6 +60,9 @@ public class K2530341User {
 
     public String getEmployeeId() { return employeeId; }
     public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
+
+    public String getNicOrPassport() { return nicOrPassport; }
+    public void setNicOrPassport(String nicOrPassport) { this.nicOrPassport = nicOrPassport; }
 
     public boolean isAdmin() {
         return "Admin".equals(role);

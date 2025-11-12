@@ -59,7 +59,12 @@ public class K2530341AuthSystem {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length >= 4) {
-                    K2530341User user = new K2530341User(parts[0], "", parts[2], parts[3]);
+                    K2530341User user;
+                    if (parts.length >= 5 && !parts[4].trim().isEmpty()) {
+                        user = new K2530341User(parts[0], "", parts[2], parts[3], parts[4]);
+                    } else {
+                        user = new K2530341User(parts[0], "", parts[2], parts[3]);
+                    }
                     user.setPasswordHash(parts[1]); // Set hash directly
                     users.put(user.getUsername(), user);
                 }
@@ -73,7 +78,7 @@ public class K2530341AuthSystem {
     private void saveUsers() {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("users.csv"))) {
             for (K2530341User user : users.values()) {
-                writer.write(user.getUsername() + "," + user.getPasswordHash() + "," + user.getRole() + "," + user.getEmployeeId() + "\n");
+                writer.write(user.getUsername() + "," + user.getPasswordHash() + "," + user.getRole() + "," + user.getEmployeeId() + "," + (user.getNicOrPassport() != null ? user.getNicOrPassport() : "") + "\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,6 +94,17 @@ public class K2530341AuthSystem {
             return false; // Invalid employee ID
         }
         K2530341User user = new K2530341User(username, password, role, employeeId);
+        users.put(username, user);
+        saveUsers();
+        return true;
+    }
+
+    // Register a customer with NIC
+    public boolean registerCustomer(String username, String password, String nic, String name, String contact, String email) {
+        if (users.containsKey(username)) {
+            return false; // Username exists
+        }
+        K2530341User user = new K2530341User(username, password, "Customer", "", nic);
         users.put(username, user);
         saveUsers();
         return true;

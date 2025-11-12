@@ -388,6 +388,16 @@ public class K2530341RentalSystem {
         return authSystem.registerUser(username, password, role, employeeId);
     }
 
+    public boolean registerCustomer(String username, String password, String nic, String name, String contact, String email) {
+        if (authSystem.registerCustomer(username, password, nic, name, contact, email)) {
+            // Also create customer record
+            K2530341Customer customer = new K2530341Customer(nic, name, contact, email);
+            registerCustomer(customer);
+            return true;
+        }
+        return false;
+    }
+
     public K2530341User loginUser(String username, String password) {
         return authSystem.loginUser(username, password);
     }
@@ -406,7 +416,7 @@ public class K2530341RentalSystem {
         if (user == null || user.isAdmin()) return new ArrayList<>();
         List<K2530341Booking> myBookings = new ArrayList<>();
         for (K2530341Booking b : bookings) {
-            if (b.getCustomer().getNicOrPassport().equals(user.getUsername())) {
+            if (b.getCustomer().getNicOrPassport().equals(user.getNicOrPassport())) {
                 myBookings.add(b);
             }
         }

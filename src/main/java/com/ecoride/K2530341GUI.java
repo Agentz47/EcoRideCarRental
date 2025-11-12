@@ -106,21 +106,24 @@ public class K2530341GUI extends JFrame {
         JDialog regDialog = new JDialog(this, "EcoRide Register", true);
         regDialog.setLayout(new BorderLayout(16, 16));
         regDialog.getContentPane().setBackground(Palette.BG_CARD);
-        regDialog.setSize(450, 400);
+        regDialog.setSize(500, 500);
         regDialog.setLocationRelativeTo(this);
         regDialog.getRootPane().setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        JPanel form = formGrid(6);
-        JTextField username = tf(), password = tf(), confirmPass = tf(), employeeId = tf();
+        JPanel form = formGrid(8);
+        JTextField email = tf(), password = tf(), confirmPass = tf(), nic = tf(), name = tf(), contact = tf(), employeeId = tf();
         JComboBox<String> role = new JComboBox<>(new String[]{"Customer", "Admin"});
         role.setBackground(Palette.BG_LIGHT);
         role.setForeground(Palette.TEXT_PRIMARY);
         role.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        form.add(label("Username:")); form.add(username);
+        form.add(label("Email (Username):")); form.add(email);
         form.add(label("Password:")); form.add(password);
         form.add(label("Confirm Password:")); form.add(confirmPass);
         form.add(label("Role:")); form.add(role);
+        form.add(label("NIC (Customer):")); form.add(nic);
+        form.add(label("Full Name (Customer):")); form.add(name);
+        form.add(label("Contact (Customer):")); form.add(contact);
         form.add(label("Employee ID (Admin only):")); form.add(employeeId);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 8));
@@ -130,18 +133,25 @@ public class K2530341GUI extends JFrame {
         buttons.add(registerBtn); buttons.add(backBtn);
 
         registerBtn.addActionListener(e -> {
-            String user = username.getText().trim();
+            String userEmail = email.getText().trim();
             String pass = password.getText().trim();
             String conf = confirmPass.getText().trim();
             String selectedRole = (String) role.getSelectedItem();
+            String nicValue = nic.getText().trim();
+            String nameValue = name.getText().trim();
+            String contactValue = contact.getText().trim();
             String empId = employeeId.getText().trim();
 
-            if (user.isEmpty() || pass.isEmpty()) {
-                warn(regDialog, "Username and password cannot be empty.");
+            if (userEmail.isEmpty() || pass.isEmpty()) {
+                warn(regDialog, "Email and password cannot be empty.");
                 return;
             }
             if (!pass.equals(conf)) {
                 warn(regDialog, "Passwords do not match.");
+                return;
+            }
+            if ("Customer".equals(selectedRole) && (nicValue.isEmpty() || nameValue.isEmpty())) {
+                warn(regDialog, "NIC and Name are required for Customer role.");
                 return;
             }
             if ("Admin".equals(selectedRole) && empId.isEmpty()) {
@@ -149,12 +159,19 @@ public class K2530341GUI extends JFrame {
                 return;
             }
 
-            if (rentalSystem.registerUser(user, pass, selectedRole, empId)) {
+            boolean success;
+            if ("Customer".equals(selectedRole)) {
+                success = rentalSystem.registerCustomer(userEmail, pass, nicValue, nameValue, contactValue, userEmail);
+            } else {
+                success = rentalSystem.registerUser(userEmail, pass, selectedRole, empId);
+            }
+
+            if (success) {
                 JOptionPane.showMessageDialog(regDialog, "Registration successful! Please login.");
                 regDialog.dispose();
                 showLoginDialog();
             } else {
-                warn(regDialog, "Registration failed. Username may exist or invalid Employee ID.");
+                warn(regDialog, "Registration failed. Email may exist or invalid Employee ID.");
             }
         });
 
@@ -832,6 +849,12 @@ public class K2530341GUI extends JFrame {
         JDialog d = modal("Make New Booking", 520, 420);
         JPanel f = formGrid(6);
         JTextField id = tf(), nic = tf(), vid = tf(), start = tf("YYYY-MM-DD"), end = tf("YYYY-MM-DD"), km = tf();
+
+        // Pre-fill NIC for customers
+        if (currentUser != null && !currentUser.isAdmin()) {
+            nic.setText(currentUser.getNicOrPassport());
+            nic.setEditable(false);
+        }
 
         f.add(label("Booking ID:")); f.add(id);
         f.add(label("Customer NIC:")); f.add(nic);
