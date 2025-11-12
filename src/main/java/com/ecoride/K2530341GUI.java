@@ -77,7 +77,14 @@ public class K2530341GUI extends JFrame {
         buttons.setBackground(Palette.BG_CARD);
         JButton loginBtn = primaryButton("Login");
         JButton registerBtn = neutralButton("Register");
-        buttons.add(loginBtn); buttons.add(registerBtn);
+        JButton exitBtn = dangerButton("Exit");
+        exitBtn.addActionListener(e -> {
+            int result = JOptionPane.showConfirmDialog(loginDialog, "Are you sure you want to exit the application?", "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (result == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+        buttons.add(loginBtn); buttons.add(registerBtn); buttons.add(exitBtn);
 
         loginBtn.addActionListener(e -> {
             String user = username.getText().trim();
@@ -116,6 +123,7 @@ public class K2530341GUI extends JFrame {
         role.setBackground(Palette.BG_LIGHT);
         role.setForeground(Palette.TEXT_PRIMARY);
         role.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        role.setMaximumRowCount(5); // Make dropdown scrollable
 
         form.add(label("Email (Username):")); form.add(email);
         form.add(label("Password:")); form.add(password);
@@ -279,8 +287,21 @@ public class K2530341GUI extends JFrame {
             SwingUtilities.invokeLater(K2530341GUI::new);
         });
 
+        JButton exitBtn = dangerButton("Exit");
+        exitBtn.addActionListener(e -> {
+            int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to exit the application?", "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (result == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        buttonsPanel.setOpaque(false);
+        buttonsPanel.add(logoutBtn);
+        buttonsPanel.add(exitBtn);
+
         headerPanel.add(titlePanel, BorderLayout.WEST);
-        headerPanel.add(logoutBtn, BorderLayout.EAST);
+        headerPanel.add(buttonsPanel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
         // Tabs based on role
@@ -774,17 +795,20 @@ public class K2530341GUI extends JFrame {
     }
 
     private void addVehicleDialog(JTextArea out) {
-        JDialog d = modal("Add New Vehicle", 500, 380);
+        JDialog d = modal("Add New Vehicle", 600, 400);
         JPanel f = formGrid(5);
         JTextField id = tf(), model = tf(), price = tf();
         JComboBox<String> category = new JComboBox<>(new String[]{"Compact Petrol", "Hybrid", "Electric", "Luxury SUV", "Racing", "Off road SUV", "Super luxury"});
         category.setBackground(Palette.BG_LIGHT);
         category.setForeground(Palette.TEXT_PRIMARY);
         category.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        category.setMaximumRowCount(5); // Make dropdown scrollable
         JComboBox<String> status = new JComboBox<>(new String[]{"Available", "Reserved", "Under Maintenance"});
         status.setBackground(Palette.BG_LIGHT);
         status.setForeground(Palette.TEXT_PRIMARY);
         status.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        status.setMaximumRowCount(5); // Make dropdown scrollable for consistency
+        status.setLightWeightPopupEnabled(false);
 
         f.add(label("Car ID:")); f.add(id);
         f.add(label("Model:")); f.add(model);
@@ -1123,11 +1147,11 @@ public class K2530341GUI extends JFrame {
     // ---------- Small UI utilities ----------
     private JDialog modal(String title, int w, int h) {
         JDialog d = new JDialog(this, title, true);
-        d.setLayout(new BorderLayout(16, 16));
+        d.setLayout(new BorderLayout(12, 12));
         d.getContentPane().setBackground(Palette.BG_CARD);
         d.setSize(w, h);
         d.setLocationRelativeTo(this);
-        d.getRootPane().setBorder(new EmptyBorder(20, 20, 20, 20));
+        d.getRootPane().setBorder(new EmptyBorder(15, 15, 15, 15));
         return d;
     }
     
@@ -1153,7 +1177,7 @@ public class K2530341GUI extends JFrame {
         t.setCaretColor(Palette.TEXT_PRIMARY);
         t.setBorder(new CompoundBorder(
             new LineBorder(Palette.BORDER, 1),
-            new EmptyBorder(10, 12, 10, 12)));
+            new EmptyBorder(5, 8, 5, 8)));
         t.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         return t;
     }
