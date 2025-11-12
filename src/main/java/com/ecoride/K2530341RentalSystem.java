@@ -22,6 +22,7 @@ public class K2530341RentalSystem {
     private HashMap<String, K2530341Customer> customerMap; // Key: nicOrPassport
     private ArrayList<K2530341Booking> bookings;
     private HashMap<String, K2530341Booking> bookingMap; // Key: bookingId
+    private K2530341AuthSystem authSystem;
 
     /** Prevents saveData() from running during load. */
     private boolean isLoadingData = false;
@@ -33,6 +34,7 @@ public class K2530341RentalSystem {
         customerMap = new HashMap<>();
         bookings = new ArrayList<>();
         bookingMap = new HashMap<>();
+        authSystem = new K2530341AuthSystem();
         loadData(); // Load data from files
         if (vehicles.isEmpty()) {
             initializeVehicles(); // Add some sample vehicles if no data loaded
@@ -375,5 +377,39 @@ public class K2530341RentalSystem {
             return true;
         }
         return false;
+    }
+
+    // ------------ Authentication ------------
+    public K2530341AuthSystem getAuthSystem() {
+        return authSystem;
+    }
+
+    public boolean registerUser(String username, String password, String role, String employeeId) {
+        return authSystem.registerUser(username, password, role, employeeId);
+    }
+
+    public K2530341User loginUser(String username, String password) {
+        return authSystem.loginUser(username, password);
+    }
+
+    public void logout() {
+        authSystem.logout();
+    }
+
+    public K2530341User getCurrentUser() {
+        return authSystem.getCurrentUser();
+    }
+
+    // Get bookings for current user (customer only)
+    public List<K2530341Booking> getMyBookings() {
+        K2530341User user = getCurrentUser();
+        if (user == null || user.isAdmin()) return new ArrayList<>();
+        List<K2530341Booking> myBookings = new ArrayList<>();
+        for (K2530341Booking b : bookings) {
+            if (b.getCustomer().getNicOrPassport().equals(user.getUsername())) {
+                myBookings.add(b);
+            }
+        }
+        return myBookings;
     }
 }

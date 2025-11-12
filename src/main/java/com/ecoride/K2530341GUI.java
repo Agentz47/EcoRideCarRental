@@ -11,6 +11,7 @@ public class K2530341GUI extends JFrame {
     private K2530341RentalSystem rentalSystem;
     private JTextArea outputArea;
     private JTabbedPane tabbedPane;
+    private K2530341User currentUser;
 
     // ---------- Modern, accessible color palette ----------
     private static class Palette {
@@ -47,7 +48,124 @@ public class K2530341GUI extends JFrame {
 
     public K2530341GUI() {
         rentalSystem = new K2530341RentalSystem();
-        setupModernGUI();
+        showLoginDialog();
+    }
+
+    private void showLoginDialog() {
+        JDialog loginDialog = new JDialog(this, "EcoRide Login", true);
+        loginDialog.setLayout(new BorderLayout(16, 16));
+        loginDialog.getContentPane().setBackground(Palette.BG_CARD);
+        loginDialog.setSize(400, 300);
+        loginDialog.setLocationRelativeTo(this);
+        loginDialog.getRootPane().setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        JPanel form = formGrid(4);
+        JTextField username = tf();
+        JPasswordField password = new JPasswordField();
+        password.setBackground(Palette.BG_LIGHT);
+        password.setForeground(Palette.TEXT_PRIMARY);
+        password.setCaretColor(Palette.TEXT_PRIMARY);
+        password.setBorder(new CompoundBorder(
+            new LineBorder(Palette.BORDER, 1),
+            new EmptyBorder(10, 12, 10, 12)));
+        password.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        form.add(label("Username:")); form.add(username);
+        form.add(label("Password:")); form.add(password);
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 8));
+        buttons.setBackground(Palette.BG_CARD);
+        JButton loginBtn = primaryButton("Login");
+        JButton registerBtn = neutralButton("Register");
+        buttons.add(loginBtn); buttons.add(registerBtn);
+
+        loginBtn.addActionListener(e -> {
+            String user = username.getText().trim();
+            String pass = new String(password.getPassword());
+            K2530341User loggedIn = rentalSystem.loginUser(user, pass);
+            if (loggedIn != null) {
+                currentUser = loggedIn;
+                loginDialog.dispose();
+                setupModernGUI();
+            } else {
+                warn(loginDialog, "Invalid username or password.");
+            }
+        });
+
+        registerBtn.addActionListener(e -> {
+            loginDialog.dispose();
+            showRegisterDialog();
+        });
+
+        loginDialog.add(form, BorderLayout.CENTER);
+        loginDialog.add(buttons, BorderLayout.SOUTH);
+        loginDialog.setVisible(true);
+    }
+
+    private void showRegisterDialog() {
+        JDialog regDialog = new JDialog(this, "EcoRide Register", true);
+        regDialog.setLayout(new BorderLayout(16, 16));
+        regDialog.getContentPane().setBackground(Palette.BG_CARD);
+        regDialog.setSize(450, 400);
+        regDialog.setLocationRelativeTo(this);
+        regDialog.getRootPane().setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        JPanel form = formGrid(6);
+        JTextField username = tf(), password = tf(), confirmPass = tf(), employeeId = tf();
+        JComboBox<String> role = new JComboBox<>(new String[]{"Customer", "Admin"});
+        role.setBackground(Palette.BG_LIGHT);
+        role.setForeground(Palette.TEXT_PRIMARY);
+        role.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+        form.add(label("Username:")); form.add(username);
+        form.add(label("Password:")); form.add(password);
+        form.add(label("Confirm Password:")); form.add(confirmPass);
+        form.add(label("Role:")); form.add(role);
+        form.add(label("Employee ID (Admin only):")); form.add(employeeId);
+
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 8));
+        buttons.setBackground(Palette.BG_CARD);
+        JButton registerBtn = primaryButton("Register");
+        JButton backBtn = neutralButton("Back to Login");
+        buttons.add(registerBtn); buttons.add(backBtn);
+
+        registerBtn.addActionListener(e -> {
+            String user = username.getText().trim();
+            String pass = password.getText().trim();
+            String conf = confirmPass.getText().trim();
+            String selectedRole = (String) role.getSelectedItem();
+            String empId = employeeId.getText().trim();
+
+            if (user.isEmpty() || pass.isEmpty()) {
+                warn(regDialog, "Username and password cannot be empty.");
+                return;
+            }
+            if (!pass.equals(conf)) {
+                warn(regDialog, "Passwords do not match.");
+                return;
+            }
+            if ("Admin".equals(selectedRole) && empId.isEmpty()) {
+                warn(regDialog, "Employee ID is required for Admin role.");
+                return;
+            }
+
+            if (rentalSystem.registerUser(user, pass, selectedRole, empId)) {
+                JOptionPane.showMessageDialog(regDialog, "Registration successful! Please login.");
+                regDialog.dispose();
+                showLoginDialog();
+            } else {
+                warn(regDialog, "Registration failed. Username may exist or invalid Employee ID.");
+            }
+        });
+
+        backBtn.addActionListener(e -> {
+            regDialog.dispose();
+            showLoginDialog();
+        });
+
+        regDialog.add(form, BorderLayout.CENTER);
+        regDialog.add(buttons, BorderLayout.SOUTH);
+        regDialog.setVisible(true);
     }
 
     private void selectTabSafe(int idx) {
@@ -140,34 +258,49 @@ public class K2530341GUI extends JFrame {
         headerPanel.add(titlePanel, BorderLayout.WEST);
         add(headerPanel, BorderLayout.NORTH);
 
-        // Tabs
+        // Tabs based on role
         tabbedPane = new JTabbedPane();
         tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         // tabbedPane.setBackground(Palette.BG_CARD);      // <-- REMOVED (Handled by UIManager)
         // tabbedPane.setForeground(Palette.TEXT_PRIMARY); // <-- REMOVED (Handled by UIManager)
 
-        JPanel dashboardPanel = createDashboardPanel();
-        JPanel vehiclesPanel = createVehiclesPanel();
-        JPanel customersPanel = createCustomersPanel();
-        JPanel bookingsPanel = createBookingsPanel();
-        JPanel invoicesPanel = createInvoicesPanel();
+        if (currentUser.isAdmin()) {
+            // Admin: Full access
+            JPanel dashboardPanel = createDashboardPanel();
+            JPanel vehiclesPanel = createVehiclesPanel();
+            JPanel customersPanel = createCustomersPanel();
+            JPanel bookingsPanel = createBookingsPanel();
+            JPanel invoicesPanel = createInvoicesPanel();
 
-        tabbedPane.addTab("Dashboard", dashboardPanel);
-        tabbedPane.addTab("Vehicles", vehiclesPanel);
-        tabbedPane.addTab("Customers", customersPanel);
-        tabbedPane.addTab("Bookings", bookingsPanel);
-        tabbedPane.addTab("Invoices", invoicesPanel);
+            tabbedPane.addTab("Dashboard", dashboardPanel);
+            tabbedPane.addTab("Vehicles", vehiclesPanel);
+            tabbedPane.addTab("Customers", customersPanel);
+            tabbedPane.addTab("Bookings", bookingsPanel);
+            tabbedPane.addTab("Invoices", invoicesPanel);
+        } else {
+            // Customer: Limited access
+            JPanel browseVehiclesPanel = createBrowseVehiclesPanel();
+            JPanel myBookingsPanel = createMyBookingsPanel();
+            JPanel makeBookingPanel = createMakeBookingPanel();
+            JPanel invoicesPanel = createCustomerInvoicesPanel();
+
+            tabbedPane.addTab("Browse Vehicles", browseVehiclesPanel);
+            tabbedPane.addTab("My Bookings", myBookingsPanel);
+            tabbedPane.addTab("Make Booking", makeBookingPanel);
+            tabbedPane.addTab("Invoices", invoicesPanel);
+        }
 
         // Keyboard shortcuts
         tabbedPane.setMnemonicAt(0, KeyEvent.VK_D);
         tabbedPane.setMnemonicAt(1, KeyEvent.VK_V);
         tabbedPane.setMnemonicAt(2, KeyEvent.VK_C);
         tabbedPane.setMnemonicAt(3, KeyEvent.VK_B);
-        tabbedPane.setMnemonicAt(4, KeyEvent.VK_I);
+        if (tabbedPane.getTabCount() > 4) tabbedPane.setMnemonicAt(4, KeyEvent.VK_I);
 
         InputMap im = tabbedPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = tabbedPane.getActionMap();
-        for (int i = 0; i < 5; i++) {
+        int tabCount = tabbedPane.getTabCount();
+        for (int i = 0; i < tabCount; i++) {
             final int idx = i;
             im.put(KeyStroke.getKeyStroke("control " + (i + 1)), "goTab" + i);
             am.put("goTab" + i, new AbstractAction() {
@@ -259,6 +392,116 @@ public class K2530341GUI extends JFrame {
         sp.setBorder(new LineBorder(Palette.BORDER, 1));
         sp.getViewport().setBackground(Palette.BG_LIGHT);
         return sp;
+    }
+
+    // ---------- Customer Panels ----------
+    private JPanel createBrowseVehiclesPanel() {
+        JPanel root = new JPanel(new BorderLayout(12, 12));
+        root.setBackground(Palette.BG_MAIN);
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
+
+        JPanel controls = card("Browse Available Vehicles");
+        JButton viewBtn = neutralButton("View Available Vehicles");
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        row.setBackground(Palette.BG_CARD);
+        row.add(viewBtn);
+        controls.add(row, BorderLayout.CENTER);
+
+        JTextArea vehiclesArea = new JTextArea();
+        vehiclesArea.setEditable(false);
+        vehiclesArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        vehiclesArea.setBackground(Palette.BG_LIGHT);
+        vehiclesArea.setForeground(Palette.TEXT_PRIMARY);
+        JPanel listCard = card("Available Vehicles");
+        listCard.add(niceScroll(vehiclesArea), BorderLayout.CENTER);
+
+        viewBtn.addActionListener(e -> viewVehicles(vehiclesArea));
+
+        root.add(controls, BorderLayout.NORTH);
+        root.add(listCard, BorderLayout.CENTER);
+        return root;
+    }
+
+    private JPanel createMyBookingsPanel() {
+        JPanel root = new JPanel(new BorderLayout(12, 12));
+        root.setBackground(Palette.BG_MAIN);
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
+
+        JPanel controls = card("My Bookings");
+        JButton viewBtn = neutralButton("View My Bookings");
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        row.setBackground(Palette.BG_CARD);
+        row.add(viewBtn);
+        controls.add(row, BorderLayout.CENTER);
+
+        JTextArea bookingsArea = new JTextArea();
+        bookingsArea.setEditable(false);
+        bookingsArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        bookingsArea.setBackground(Palette.BG_LIGHT);
+        bookingsArea.setForeground(Palette.TEXT_PRIMARY);
+        JPanel listCard = card("My Bookings List");
+        listCard.add(niceScroll(bookingsArea), BorderLayout.CENTER);
+
+        viewBtn.addActionListener(e -> viewMyBookings(bookingsArea));
+
+        root.add(controls, BorderLayout.NORTH);
+        root.add(listCard, BorderLayout.CENTER);
+        return root;
+    }
+
+    private JPanel createMakeBookingPanel() {
+        JPanel root = new JPanel(new BorderLayout(12, 12));
+        root.setBackground(Palette.BG_MAIN);
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
+
+        JPanel controls = card("Make a New Booking");
+        JButton makeBtn = primaryButton("Make Booking");
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        row.setBackground(Palette.BG_CARD);
+        row.add(makeBtn);
+        controls.add(row, BorderLayout.CENTER);
+
+        JTextArea bookingArea = new JTextArea();
+        bookingArea.setEditable(false);
+        bookingArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        bookingArea.setBackground(Palette.BG_LIGHT);
+        bookingArea.setForeground(Palette.TEXT_PRIMARY);
+        JPanel listCard = card("Booking Status");
+        listCard.add(niceScroll(bookingArea), BorderLayout.CENTER);
+
+        makeBtn.addActionListener(e -> makeBookingDialog(bookingArea));
+
+        root.add(controls, BorderLayout.NORTH);
+        root.add(listCard, BorderLayout.CENTER);
+        return root;
+    }
+
+    private JPanel createCustomerInvoicesPanel() {
+        JPanel root = new JPanel(new BorderLayout(12, 12));
+        root.setBackground(Palette.BG_MAIN);
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
+
+        JPanel controls = card("My Invoices");
+        JButton generateBtn = primaryButton("Generate Invoice");
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        row.setBackground(Palette.BG_CARD);
+        row.add(generateBtn);
+        controls.add(row, BorderLayout.CENTER);
+
+        JTextArea invoicesArea = new JTextArea();
+        invoicesArea.setEditable(false);
+        invoicesArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        invoicesArea.setBackground(Palette.BG_LIGHT);
+        invoicesArea.setForeground(Palette.TEXT_PRIMARY);
+        JPanel listCard = card("Invoice Preview");
+        listCard.add(niceScroll(invoicesArea), BorderLayout.CENTER);
+        outputArea = invoicesArea;
+
+        generateBtn.addActionListener(e -> generateInvoiceDialog());
+
+        root.add(controls, BorderLayout.NORTH);
+        root.add(listCard, BorderLayout.CENTER);
+        return root;
     }
 
     // ---------- Panels ----------
@@ -492,6 +735,12 @@ public class K2530341GUI extends JFrame {
     }
 
     // ---------- Data actions ----------
+    private void viewMyBookings(JTextArea out) {
+        StringBuilder sb = new StringBuilder("MY BOOKINGS\n");
+        sb.append("=".repeat(70)).append("\n\n");
+        rentalSystem.getMyBookings().forEach(b -> sb.append(b).append("\n\n"));
+        out.setText(sb.toString());
+    }
     private void viewVehicles(JTextArea out) {
         StringBuilder sb = new StringBuilder("AVAILABLE VEHICLES\n");
         sb.append("=".repeat(70)).append("\n\n");
