@@ -422,4 +422,15 @@ public class K2530341RentalSystem {
         }
         return myBookings;
     }
+
+    // Get bookings for a specific customer by NIC
+    public List<K2530341Booking> getBookingsByCustomerNic(String nic) {
+        List<K2530341Booking> customerBookings = new ArrayList<>();
+        for (K2530341Booking b : bookings) {
+            if (b.getCustomer().getNicOrPassport().equals(nic)) {
+                customerBookings.add(b);
+            }
+        }
+        return customerBookings;
+    }
 }

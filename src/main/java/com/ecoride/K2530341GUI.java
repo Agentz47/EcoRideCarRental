@@ -1176,12 +1176,57 @@ public class K2530341GUI extends JFrame {
     }
 
     private void generateInvoiceDialog() {
-        String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID for invoice:");
-        if (bookingId == null) return;
-        K2530341Booking b = rentalSystem.getBooking(bookingId);
-        if (b == null) { warn(this, "Booking not found."); return; }
-        K2530341Invoice invoice = rentalSystem.generateInvoice(b);
-        outputArea.setText("INVOICE GENERATED\n" + "=".repeat(70) + "\n\n" + invoice.toString());
+        if (currentUser.isAdmin()) {
+            // Admin: Can enter any booking ID
+            String bookingId = JOptionPane.showInputDialog(this, "Enter Booking ID for invoice:");
+            if (bookingId == null) return;
+            K2530341Booking b = rentalSystem.getBooking(bookingId);
+            if (b == null) { warn(this, "Booking not found."); return; }
+            K2530341Invoice invoice = rentalSystem.generateInvoice(b);
+            outputArea.setText("INVOICE GENERATED\n" + "=".repeat(70) + "\n\n" + invoice.toString());
+        } else {
+            // Customer: Show dropdown of their own bookings
+            java.util.List<K2530341Booking> myBookings = rentalSystem.getBookingsByCustomerNic(currentUser.getNicOrPassport());
+            if (myBookings.isEmpty()) {
+                warn(this, "You have no bookings to generate invoices for.");
+                return;
+            }
+
+            JDialog d = modal("Select Booking for Invoice", 500, 150);
+            JPanel f = formGrid(1);
+
+            // Create dropdown with booking details
+            java.util.List<String> bookingOptions = new java.util.ArrayList<>();
+            for (K2530341Booking b : myBookings) {
+                String option = b.getBookingId() + " - " + b.getVehicle().getModel() +
+                               " (" + b.getStartDate() + " to " + b.getEndDate() + ")";
+                bookingOptions.add(option);
+            }
+            JComboBox<String> bookingCombo = new JComboBox<>(bookingOptions.toArray(new String[0]));
+            bookingCombo.setBackground(Palette.BG_LIGHT);
+            bookingCombo.setForeground(Palette.TEXT_PRIMARY);
+            bookingCombo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            bookingCombo.setMaximumRowCount(5); // Make dropdown scrollable
+            bookingCombo.setLightWeightPopupEnabled(false);
+
+
+            f.add(label("Select Your Booking:")); f.add(bookingCombo);
+
+            JButton generate = primaryButton("Generate Invoice");
+            generate.addActionListener(e -> {
+                int selectedIndex = bookingCombo.getSelectedIndex();
+                if (selectedIndex >= 0) {
+                    K2530341Booking selectedBooking = myBookings.get(selectedIndex);
+                    K2530341Invoice invoice = rentalSystem.generateInvoice(selectedBooking);
+                    outputArea.setText("INVOICE GENERATED\n" + "=".repeat(70) + "\n\n" + invoice.toString());
+                    d.dispose();
+                }
+            });
+
+            d.add(f, BorderLayout.CENTER);
+            d.add(footerRight(generate), BorderLayout.SOUTH);
+            d.setVisible(true);
+        }
     }
 
     // ---------- Small UI utilities ----------
