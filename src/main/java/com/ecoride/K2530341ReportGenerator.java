@@ -6,23 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * Report Generator for EcoRide Car Rental System.
- * Generates various reports for business analytics and management.
- * Demonstrates OOP: Utility class with static methods and data structures.
- */
+// Simple report generator for the rental system
+// Handles different types of reports like revenue, utilization, etc.
 public class K2530341ReportGenerator {
 
-    /**
-     * Generate revenue report for a date range
-     */
+    // Creates a revenue report for bookings within a date range
     public static String generateRevenueReport(K2530341RentalSystem rentalSystem, LocalDate startDate, LocalDate endDate) {
         List<K2530341Booking> allBookings = rentalSystem.getAllBookings();
-        Map<String, Double> categoryRevenue = new HashMap<>();
-        Map<String, Integer> categoryBookings = new HashMap<>();
+        Map<String, Double> revenueByCategory = new HashMap<>();
+        Map<String, Integer> bookingsByCategory = new HashMap<>();
         double totalRevenue = 0.0;
         int totalBookings = 0;
 
+        // Go through each booking and check if it's in our date range
         for (K2530341Booking booking : allBookings) {
             LocalDate bookingDate = booking.getStartDate();
             if ((bookingDate.isEqual(startDate) || bookingDate.isAfter(startDate)) &&
@@ -31,14 +27,16 @@ public class K2530341ReportGenerator {
                 String category = booking.getVehicle().getCategory();
                 double revenue = K2530341FeeCalculator.calculateEstimatedFee(booking);
 
-                categoryRevenue.put(category, categoryRevenue.getOrDefault(category, 0.0) + revenue);
-                categoryBookings.put(category, categoryBookings.getOrDefault(category, 0) + 1);
+                // Add up revenue and booking count for each category
+                revenueByCategory.put(category, revenueByCategory.getOrDefault(category, 0.0) + revenue);
+                bookingsByCategory.put(category, bookingsByCategory.getOrDefault(category, 0) + 1);
 
                 totalRevenue += revenue;
                 totalBookings++;
             }
         }
 
+        // Build the report text
         StringBuilder report = new StringBuilder();
         report.append("=== REVENUE REPORT ===\n");
         report.append(String.format("Period: %s to %s\n\n",
@@ -46,10 +44,10 @@ public class K2530341ReportGenerator {
             endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
 
         report.append("Revenue by Category:\n");
-        for (Map.Entry<String, Double> entry : categoryRevenue.entrySet()) {
+        for (Map.Entry<String, Double> entry : revenueByCategory.entrySet()) {
             String category = entry.getKey();
             double revenue = entry.getValue();
-            int bookings = categoryBookings.get(category);
+            int bookings = bookingsByCategory.get(category);
             double avgRevenue = bookings > 0 ? revenue / bookings : 0;
 
             report.append(String.format("- %s: LKR %.2f (%d bookings, Avg: LKR %.2f)\n",
@@ -64,31 +62,31 @@ public class K2530341ReportGenerator {
         return report.toString();
     }
 
-    /**
-     * Generate vehicle utilization report
-     */
+    // Shows how many vehicles are available, reserved, etc. by category
     public static String generateUtilizationReport(K2530341RentalSystem rentalSystem) {
         List<K2530341Vehicle> vehicles = rentalSystem.getAllVehicles();
         Map<String, Integer> categoryCount = new HashMap<>();
-        Map<String, Integer> categoryAvailable = new HashMap<>();
-        Map<String, Integer> categoryReserved = new HashMap<>();
-        Map<String, Integer> categoryMaintenance = new HashMap<>();
+        Map<String, Integer> availableByCategory = new HashMap<>();
+        Map<String, Integer> reservedByCategory = new HashMap<>();
+        Map<String, Integer> maintenanceByCategory = new HashMap<>();
 
+        // Count vehicles by category and status
         for (K2530341Vehicle vehicle : vehicles) {
             String category = vehicle.getCategory();
             String status = vehicle.getAvailabilityStatus();
 
             categoryCount.put(category, categoryCount.getOrDefault(category, 0) + 1);
 
+            // Figure out which status bucket this goes in
             switch (status.toLowerCase()) {
                 case "available":
-                    categoryAvailable.put(category, categoryAvailable.getOrDefault(category, 0) + 1);
+                    availableByCategory.put(category, availableByCategory.getOrDefault(category, 0) + 1);
                     break;
                 case "reserved":
-                    categoryReserved.put(category, categoryReserved.getOrDefault(category, 0) + 1);
+                    reservedByCategory.put(category, reservedByCategory.getOrDefault(category, 0) + 1);
                     break;
                 case "under maintenance":
-                    categoryMaintenance.put(category, categoryMaintenance.getOrDefault(category, 0) + 1);
+                    maintenanceByCategory.put(category, maintenanceByCategory.getOrDefault(category, 0) + 1);
                     break;
             }
         }
@@ -96,15 +94,17 @@ public class K2530341ReportGenerator {
         StringBuilder report = new StringBuilder();
         report.append("=== VEHICLE UTILIZATION REPORT ===\n\n");
 
+        // Table header
         report.append(String.format("%-15s %-8s %-10s %-10s %-12s %-10s\n",
             "Category", "Total", "Available", "Reserved", "Maintenance", "Utilization"));
         report.append("-".repeat(75) + "\n");
 
+        // Print each category's stats
         for (String category : categoryCount.keySet()) {
             int total = categoryCount.get(category);
-            int available = categoryAvailable.getOrDefault(category, 0);
-            int reserved = categoryReserved.getOrDefault(category, 0);
-            int maintenance = categoryMaintenance.getOrDefault(category, 0);
+            int available = availableByCategory.getOrDefault(category, 0);
+            int reserved = reservedByCategory.getOrDefault(category, 0);
+            int maintenance = maintenanceByCategory.getOrDefault(category, 0);
             double utilization = total > 0 ? ((double)(reserved + maintenance) / total) * 100 : 0;
 
             report.append(String.format("%-15s %-8d %-10d %-10d %-12d %-9.1f%%\n",
@@ -114,9 +114,7 @@ public class K2530341ReportGenerator {
         return report.toString();
     }
 
-    /**
-     * Generate customer booking history report
-     */
+    // Shows all bookings for a specific customer
     public static String generateCustomerReport(K2530341RentalSystem rentalSystem, String customerNic) {
         List<K2530341Booking> customerBookings = rentalSystem.getBookingsByCustomerNic(customerNic);
         K2530341Customer customer = rentalSystem.getCustomer(customerNic);
@@ -139,6 +137,7 @@ public class K2530341ReportGenerator {
 
         report.append(String.format("Total Bookings: %d\n\n", customerBookings.size()));
 
+        // Table header for bookings
         report.append(String.format("%-12s %-15s %-12s %-12s %-8s %-10s\n",
             "Booking ID", "Vehicle", "Start Date", "End Date", "Days", "Est. Cost"));
         report.append("-".repeat(85) + "\n");
@@ -164,9 +163,7 @@ public class K2530341ReportGenerator {
         return report.toString();
     }
 
-    /**
-     * Generate system summary report
-     */
+    // Quick overview of the whole system
     public static String generateSystemSummary(K2530341RentalSystem rentalSystem) {
         List<K2530341Vehicle> vehicles = rentalSystem.getAllVehicles();
         List<K2530341Customer> customers = rentalSystem.getAllCustomers();
@@ -179,29 +176,29 @@ public class K2530341ReportGenerator {
         report.append(String.format("Total Customers: %d\n", customers.size()));
         report.append(String.format("Total Bookings: %d\n", bookings.size()));
 
-        // Calculate current utilization
-        int availableVehicles = 0;
-        int reservedVehicles = 0;
-        Map<String, Integer> categoryStats = new HashMap<>();
+        // Figure out how many vehicles are available vs reserved
+        int availableCount = 0;
+        int reservedCount = 0;
+        Map<String, Integer> vehiclesByCategory = new HashMap<>();
 
         for (K2530341Vehicle vehicle : vehicles) {
-            categoryStats.put(vehicle.getCategory(),
-                categoryStats.getOrDefault(vehicle.getCategory(), 0) + 1);
+            vehiclesByCategory.put(vehicle.getCategory(),
+                vehiclesByCategory.getOrDefault(vehicle.getCategory(), 0) + 1);
 
             if ("Available".equals(vehicle.getAvailabilityStatus())) {
-                availableVehicles++;
+                availableCount++;
             } else if ("Reserved".equals(vehicle.getAvailabilityStatus())) {
-                reservedVehicles++;
+                reservedCount++;
             }
         }
 
-        report.append(String.format("Available Vehicles: %d\n", availableVehicles));
-        report.append(String.format("Reserved Vehicles: %d\n", reservedVehicles));
+        report.append(String.format("Available Vehicles: %d\n", availableCount));
+        report.append(String.format("Reserved Vehicles: %d\n", reservedCount));
         report.append(String.format("Current Utilization: %.1f%%\n\n",
-            vehicles.size() > 0 ? ((double)reservedVehicles / vehicles.size()) * 100 : 0));
+            vehicles.size() > 0 ? ((double)reservedCount / vehicles.size()) * 100 : 0));
 
         report.append("Vehicles by Category:\n");
-        for (Map.Entry<String, Integer> entry : categoryStats.entrySet()) {
+        for (Map.Entry<String, Integer> entry : vehiclesByCategory.entrySet()) {
             report.append(String.format("- %s: %d vehicles\n", entry.getKey(), entry.getValue()));
         }
 

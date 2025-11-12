@@ -13,37 +13,37 @@ public class K2530341GUI extends JFrame {
     private JTabbedPane tabbedPane;
     private K2530341User currentUser;
 
-    // ---------- Modern, accessible color palette ----------
+    // Colors that make the app look modern and easy on the eyes
     private static class Palette {
-        // Primary colors
-        static final Color PRIMARY = new Color(16, 185, 129);      // Emerald green (eco-friendly)
-        static final Color PRIMARY_DARK = new Color(5, 150, 105);  // Darker emerald
-        static final Color SECONDARY = new Color(59, 130, 246);    // Blue
-        
-        // Semantic colors
-        static final Color SUCCESS = new Color(34, 197, 94);       // Green
-        static final Color WARNING = new Color(251, 146, 60);      // Orange
-        static final Color DANGER = new Color(239, 68, 68);        // Red
-        static final Color INFO = new Color(96, 165, 250);         // Light blue
-        
-        // Background colors
-        static final Color BG_MAIN = new Color(15, 23, 42);        // Dark slate
-        static final Color BG_CARD = new Color(30, 41, 59);        // Slate card
-        static final Color BG_LIGHT = new Color(51, 65, 85);       // Lighter slate
-        
-        // Text colors
-        static final Color TEXT_PRIMARY = new Color(248, 250, 252); // Almost white
-        static final Color TEXT_SECONDARY = new Color(203, 213, 225); // Light gray
-        static final Color TEXT_MUTED = new Color(148, 163, 184);  // Gray
-        static final Color TEXT_ACCENT = new Color(52, 211, 153);  // Bright green
-        static final Color YELLOWISH_GREEN = new Color(171, 227, 56);  //Yellowish-green
+        // Main brand colors
+        static final Color PRIMARY = new Color(16, 185, 129);      // Nice green for eco theme
+        static final Color PRIMARY_DARK = new Color(5, 150, 105);  // Darker green for buttons
+        static final Color SECONDARY = new Color(59, 130, 246);    // Blue for secondary stuff
 
-        
-        // Border & divider
-        static final Color BORDER = new Color(71, 85, 105);        // Slate border
-        static final Color DIVIDER = new Color(51, 65, 85);        // Subtle divider
-        
-        // Button colors
+        // Colors for different message types
+        static final Color SUCCESS = new Color(34, 197, 94);       // Green for good news
+        static final Color WARNING = new Color(251, 146, 60);      // Orange for warnings
+        static final Color DANGER = new Color(239, 68, 68);        // Red for errors
+        static final Color INFO = new Color(96, 165, 250);         // Light blue for info
+
+        // Background colors for different parts
+        static final Color BG_MAIN = new Color(15, 23, 42);        // Dark main background
+        static final Color BG_CARD = new Color(30, 41, 59);        // Card backgrounds
+        static final Color BG_LIGHT = new Color(51, 65, 85);       // Lighter backgrounds
+
+        // Text colors
+        static final Color TEXT_PRIMARY = new Color(248, 250, 252); // Main text color
+        static final Color TEXT_SECONDARY = new Color(203, 213, 225); // Secondary text
+        static final Color TEXT_MUTED = new Color(148, 163, 184);  // Muted text
+        static final Color TEXT_ACCENT = new Color(52, 211, 153);  // Bright green accents
+        static final Color YELLOWISH_GREEN = new Color(171, 227, 56);  // Extra green
+
+
+        // Borders and dividers
+        static final Color BORDER = new Color(71, 85, 105);        // Border color
+        static final Color DIVIDER = new Color(51, 65, 85);        // Divider lines
+
+        // Button styling
         static final Color BTN_NEUTRAL_BG = new Color(71, 85, 105);
         static final Color BTN_NEUTRAL_TEXT = new Color(226, 232, 240);
     }
