@@ -271,8 +271,16 @@ public class K2530341GUI extends JFrame {
         titlePanel.setOpaque(false);
         titlePanel.add(titleLabel, BorderLayout.NORTH);
         titlePanel.add(subtitleLabel, BorderLayout.CENTER);
-        
+
+        JButton logoutBtn = primaryButton("Logout");
+        logoutBtn.addActionListener(e -> {
+            rentalSystem.logout();
+            dispose();
+            SwingUtilities.invokeLater(K2530341GUI::new);
+        });
+
         headerPanel.add(titlePanel, BorderLayout.WEST);
+        headerPanel.add(logoutBtn, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
         // Tabs based on role
