@@ -797,7 +797,7 @@ public class K2530341GUI extends JFrame {
     private void addVehicleDialog(JTextArea out) {
         JDialog d = modal("Add New Vehicle", 600, 400);
         JPanel f = formGrid(5);
-        JTextField id = tf(), model = tf(), price = tf();
+        JTextField model = tf(), price = tf();
         JComboBox<String> category = new JComboBox<>(new String[]{"Compact Petrol", "Hybrid", "Electric", "Luxury SUV", "Racing", "Off road SUV", "Super luxury"});
         category.setBackground(Palette.BG_LIGHT);
         category.setForeground(Palette.TEXT_PRIMARY);
@@ -810,7 +810,10 @@ public class K2530341GUI extends JFrame {
         status.setMaximumRowCount(5); // Make dropdown scrollable for consistency
         status.setLightWeightPopupEnabled(false);
 
-        f.add(label("Car ID:")); f.add(id);
+        // Generate next unique vehicle ID
+        String nextId = generateNextVehicleId();
+
+        f.add(label("Generated Vehicle ID:")); f.add(label(nextId)); // Display generated ID
         f.add(label("Model:")); f.add(model);
         f.add(label("Category:")); f.add(category);
         f.add(label("Daily Price:")); f.add(price);
@@ -818,18 +821,9 @@ public class K2530341GUI extends JFrame {
 
         JButton add = primaryButton("Add Vehicle");
         add.addActionListener(e -> {
-            String carId = id.getText().trim();
-            if (carId.isEmpty()) {
-                warn(d, "Car ID cannot be empty.");
-                return;
-            }
-            if (rentalSystem.getVehicle(carId) != null) {
-                warn(d, "Vehicle ID already exists. Please choose a unique ID.");
-                return;
-            }
             try {
                 K2530341Vehicle v = new K2530341Vehicle(
-                        carId, model.getText().trim(), (String) category.getSelectedItem(),
+                        nextId, model.getText().trim(), (String) category.getSelectedItem(),
                         Double.parseDouble(price.getText().trim()), (String) status.getSelectedItem());
                 rentalSystem.addVehicle(v);
                 out.setText("[SUCCESS] Vehicle added successfully!\n\n" + v);
@@ -842,6 +836,38 @@ public class K2530341GUI extends JFrame {
         d.add(f, BorderLayout.CENTER);
         d.add(footerRight(add), BorderLayout.SOUTH);
         d.setVisible(true);
+    }
+
+    private String generateNextVehicleId() {
+        int maxNum = 0;
+        for (K2530341Vehicle v : rentalSystem.getAllVehicles()) {
+            String id = v.getCarId();
+            if (id.startsWith("V")) {
+                try {
+                    int num = Integer.parseInt(id.substring(1));
+                    if (num > maxNum) maxNum = num;
+                } catch (NumberFormatException e) {
+                    // Ignore invalid formats
+                }
+            }
+        }
+        return String.format("V%03d", maxNum + 1);
+    }
+
+    private String generateNextBookingId() {
+        int maxNum = 0;
+        for (K2530341Booking b : rentalSystem.getAllBookings()) {
+            String id = b.getBookingId();
+            if (id.startsWith("B")) {
+                try {
+                    int num = Integer.parseInt(id.substring(1));
+                    if (num > maxNum) maxNum = num;
+                } catch (NumberFormatException e) {
+                    // Ignore invalid formats
+                }
+            }
+        }
+        return String.format("B%03d", maxNum + 1);
     }
 
     private void registerCustomerDialog(JTextArea out) {
@@ -880,13 +906,16 @@ public class K2530341GUI extends JFrame {
     private void makeBookingDialog(JTextArea out) {
         JDialog d = modal("Make New Booking", 520, 450);
         JPanel f = formGrid(6);
-        JTextField id = tf(), nic = tf(), start = tf("YYYY-MM-DD"), end = tf("YYYY-MM-DD"), km = tf();
+        JTextField nic = tf(), start = tf("YYYY-MM-DD"), end = tf("YYYY-MM-DD"), km = tf();
 
         // Pre-fill NIC for customers
         if (currentUser != null && !currentUser.isAdmin()) {
             nic.setText(currentUser.getNicOrPassport());
             nic.setEditable(false);
         }
+
+        // Generate next unique booking ID
+        String nextBookingId = generateNextBookingId();
 
         // Create vehicle dropdown with available vehicles
         java.util.List<String> vehicleOptions = new java.util.ArrayList<>();
@@ -901,7 +930,7 @@ public class K2530341GUI extends JFrame {
         vehicleCombo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         vehicleCombo.setMaximumRowCount(5); // Make dropdown scrollable
 
-        f.add(label("Booking ID:")); f.add(id);
+        f.add(label("Generated Booking ID:")); f.add(label(nextBookingId)); // Display generated ID
         f.add(label("Customer NIC:")); f.add(nic);
         f.add(label("Vehicle:")); f.add(vehicleCombo);
         f.add(label("Start Date:")); f.add(start);
@@ -910,15 +939,6 @@ public class K2530341GUI extends JFrame {
 
         JButton book = primaryButton("Create Booking");
         book.addActionListener(e -> {
-            String bookingId = id.getText().trim();
-            if (bookingId.isEmpty()) {
-                warn(d, "Booking ID cannot be empty.");
-                return;
-            }
-            if (rentalSystem.getBooking(bookingId) != null) {
-                warn(d, "Booking ID already exists. Please choose a unique ID.");
-                return;
-            }
             try {
                 K2530341Customer c = rentalSystem.getCustomer(nic.getText().trim());
                 // Extract vehicle ID from the selected combo box item
@@ -951,7 +971,7 @@ public class K2530341GUI extends JFrame {
                     return;
                 }
 
-                K2530341Booking b = new K2530341Booking(bookingId, c, v, s, en, totalKm);
+                K2530341Booking b = new K2530341Booking(nextBookingId, c, v, s, en, totalKm);
                 if (rentalSystem.makeBooking(b)) {
                     out.setText("[SUCCESS] Booking successful!\n\n" + b);
                     d.dispose();
