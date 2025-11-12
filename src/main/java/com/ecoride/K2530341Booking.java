@@ -62,6 +62,25 @@ public class K2530341Booking {
         return vehicle.isAvailable() && startDate.isAfter(today.plusDays(2)) && !startDate.isAfter(endDate); // At least 3 days prior, start <= end
     }
 
+    // Business rule: Check if booking can be cancelled (before 2 days of start date)
+    public boolean canCancel() {
+        LocalDate today = LocalDate.now();
+        return startDate.isAfter(today.plusDays(1)); // Can cancel if more than 2 days before start
+    }
+
+    // Business rule: Check if booking can be updated (before 2 days of start date)
+    public boolean canUpdate() {
+        LocalDate today = LocalDate.now();
+        return startDate.isAfter(today.plusDays(1)); // Can update if more than 2 days before start
+    }
+
+    // Get days until booking starts
+    public long getDaysUntilStart() {
+        LocalDate today = LocalDate.now();
+        if (startDate.isBefore(today)) return -1; // Already started
+        return java.time.temporal.ChronoUnit.DAYS.between(today, startDate);
+    }
+
     @Override
     public String toString() {
         return "Booking{" +

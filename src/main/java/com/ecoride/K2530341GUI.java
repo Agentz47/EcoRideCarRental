@@ -475,9 +475,11 @@ public class K2530341GUI extends JFrame {
 
         JPanel controls = card("My Bookings");
         JButton viewBtn = neutralButton("View My Bookings");
+        JButton cancelBtn = dangerButton("Cancel Booking");
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
         row.setBackground(Palette.BG_CARD);
         row.add(viewBtn);
+        row.add(cancelBtn);
         controls.add(row, BorderLayout.CENTER);
 
         JTextArea bookingsArea = new JTextArea();
@@ -489,6 +491,7 @@ public class K2530341GUI extends JFrame {
         listCard.add(niceScroll(bookingsArea), BorderLayout.CENTER);
 
         viewBtn.addActionListener(e -> viewMyBookings(bookingsArea));
+        cancelBtn.addActionListener(e -> cancelBookingDialog(bookingsArea));
 
         root.add(controls, BorderLayout.NORTH);
         root.add(listCard, BorderLayout.CENTER);
@@ -599,7 +602,12 @@ public class K2530341GUI extends JFrame {
         addCustomerBtn.addActionListener(e -> selectTabSafe(2));
         JButton makeBookingBtn = primaryButton("Make Booking");
         makeBookingBtn.addActionListener(e -> selectTabSafe(3));
+        JButton systemHealthBtn = neutralButton("System Health");
+        systemHealthBtn.addActionListener(e -> showSystemHealthDialog());
+        JButton generateReportsBtn = primaryButton("Generate Reports");
+        generateReportsBtn.addActionListener(e -> showReportsDialog());
         row.add(viewVehiclesBtn); row.add(addCustomerBtn); row.add(makeBookingBtn);
+        row.add(systemHealthBtn); row.add(generateReportsBtn);
         actions.add(row, BorderLayout.CENTER);
         grid.add(actions, gc);
 
@@ -1281,6 +1289,166 @@ public class K2530341GUI extends JFrame {
         JDialog dialog = pane.createDialog(parent, "EcoRide");
         dialog.getContentPane().setBackground(Palette.BG_CARD);
         dialog.setVisible(true);
+    }
+
+    // ---------- Customer Booking Cancellation ----------
+    private void cancelBookingDialog(JTextArea out) {
+        java.util.List<K2530341Booking> myBookings = rentalSystem.getBookingsByCustomerNic(currentUser.getNicOrPassport());
+        if (myBookings.isEmpty()) {
+            warn(this, "You have no bookings to cancel.");
+            return;
+        }
+
+        JDialog d = modal("Cancel Booking", 500, 200);
+        JPanel f = formGrid(1);
+
+        // Create dropdown with booking details
+        java.util.List<String> bookingOptions = new java.util.ArrayList<>();
+        for (K2530341Booking b : myBookings) {
+            String option = b.getBookingId() + " - " + b.getVehicle().getModel() +
+                           " (" + b.getStartDate() + " to " + b.getEndDate() + ")";
+            bookingOptions.add(option);
+        }
+        JComboBox<String> bookingCombo = new JComboBox<>(bookingOptions.toArray(new String[0]));
+        bookingCombo.setBackground(Palette.BG_LIGHT);
+        bookingCombo.setForeground(Palette.TEXT_PRIMARY);
+        bookingCombo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        bookingCombo.setMaximumRowCount(5); // Make dropdown scrollable
+
+        f.add(label("Select Booking to Cancel:")); f.add(bookingCombo);
+
+        JButton cancelBtn = dangerButton("Cancel Booking");
+        cancelBtn.addActionListener(e -> {
+            int selectedIndex = bookingCombo.getSelectedIndex();
+            if (selectedIndex >= 0) {
+                K2530341Booking selectedBooking = myBookings.get(selectedIndex);
+
+                // Check if booking can be cancelled (not within 2 days of start date)
+                LocalDate today = LocalDate.now();
+                if (selectedBooking.getStartDate().isBefore(today.plusDays(3))) {
+                    warn(d, "Cannot cancel booking within 2 days of the start date.");
+                    return;
+                }
+
+                // Confirm cancellation
+                int result = JOptionPane.showConfirmDialog(d,
+                    "Are you sure you want to cancel this booking?\n\n" +
+                    "Booking ID: " + selectedBooking.getBookingId() + "\n" +
+                    "Vehicle: " + selectedBooking.getVehicle().getModel() + "\n" +
+                    "Dates: " + selectedBooking.getStartDate() + " to " + selectedBooking.getEndDate() + "\n\n" +
+                    "Note: LKR 5,000 deposit will be refunded.",
+                    "Confirm Cancellation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+                if (result == JOptionPane.YES_OPTION) {
+                    if (rentalSystem.deleteBooking(selectedBooking.getBookingId())) {
+                        out.setText("[CANCELLED] Booking cancelled successfully!\n\n" +
+                                   "Booking ID: " + selectedBooking.getBookingId() + "\n" +
+                                   "Refund: LKR 5,000 (Deposit)\n\n" +
+                                   "Vehicle is now available for other customers.");
+                        d.dispose();
+                    } else {
+                        warn(d, "Cancellation failed. Please try again.");
+                    }
+                }
+            }
+        });
+
+        d.add(f, BorderLayout.CENTER);
+        d.add(footerRight(cancelBtn), BorderLayout.SOUTH);
+        d.setVisible(true);
+    }
+
+    // ---------- Enhanced Feature Dialogs ----------
+    private void showSystemHealthDialog() {
+        K2530341SystemHealthMonitor monitor = K2530341SystemHealthMonitor.getInstance();
+        monitor.setRentalSystem(rentalSystem);
+
+        K2530341SystemHealthMonitor.SystemHealthReport report = monitor.performHealthCheck();
+
+        JDialog d = modal("System Health Check", 700, 500);
+        JTextArea reportArea = new JTextArea();
+        reportArea.setEditable(false);
+        reportArea.setFont(new Font("Consolas", Font.PLAIN, 12));
+        reportArea.setBackground(Palette.BG_LIGHT);
+        reportArea.setForeground(Palette.TEXT_PRIMARY);
+        reportArea.setText(report.toString() + "\n\n" + monitor.generateDiagnosticsReport());
+
+        d.add(niceScroll(reportArea), BorderLayout.CENTER);
+
+        JButton closeBtn = primaryButton("Close");
+        closeBtn.addActionListener(e -> d.dispose());
+        d.add(footerRight(closeBtn), BorderLayout.SOUTH);
+        d.setVisible(true);
+    }
+
+    private void showReportsDialog() {
+        JDialog d = modal("Generate Reports", 600, 400);
+        JPanel f = formGrid(4);
+
+        JComboBox<String> reportType = new JComboBox<>(new String[]{
+            "Revenue Report", "Utilization Report", "Customer Report", "System Summary"
+        });
+        reportType.setBackground(Palette.BG_LIGHT);
+        reportType.setForeground(Palette.TEXT_PRIMARY);
+        reportType.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        reportType.setMaximumRowCount(5);
+
+        JTextField startDate = tf("YYYY-MM-DD"), endDate = tf("YYYY-MM-DD"), customerNic = tf();
+
+        f.add(label("Report Type:")); f.add(reportType);
+        f.add(label("Start Date (Revenue):")); f.add(startDate);
+        f.add(label("End Date (Revenue):")); f.add(endDate);
+        f.add(label("Customer NIC (Customer Report):")); f.add(customerNic);
+
+        JTextArea reportArea = new JTextArea();
+        reportArea.setEditable(false);
+        reportArea.setFont(new Font("Consolas", Font.PLAIN, 12));
+        reportArea.setBackground(Palette.BG_LIGHT);
+        reportArea.setForeground(Palette.TEXT_PRIMARY);
+
+        JButton generateBtn = primaryButton("Generate Report");
+        generateBtn.addActionListener(e -> {
+            String selectedType = (String) reportType.getSelectedItem();
+            String report = "";
+
+            try {
+                switch (selectedType) {
+                    case "Revenue Report":
+                        LocalDate start = LocalDate.parse(startDate.getText().trim());
+                        LocalDate end = LocalDate.parse(endDate.getText().trim());
+                        report = K2530341ReportGenerator.generateRevenueReport(rentalSystem, start, end);
+                        break;
+                    case "Utilization Report":
+                        report = K2530341ReportGenerator.generateUtilizationReport(rentalSystem);
+                        break;
+                    case "Customer Report":
+                        String nic = customerNic.getText().trim();
+                        if (nic.isEmpty()) {
+                            warn(d, "Please enter customer NIC for customer report.");
+                            return;
+                        }
+                        report = K2530341ReportGenerator.generateCustomerReport(rentalSystem, nic);
+                        break;
+                    case "System Summary":
+                        report = K2530341ReportGenerator.generateSystemSummary(rentalSystem);
+                        break;
+                }
+                reportArea.setText(report);
+            } catch (DateTimeParseException ex) {
+                warn(d, "Invalid date format. Use YYYY-MM-DD.");
+            } catch (Exception ex) {
+                warn(d, "Error generating report: " + ex.getMessage());
+            }
+        });
+
+        JPanel content = new JPanel(new BorderLayout(12, 12));
+        content.setBackground(Palette.BG_CARD);
+        content.add(f, BorderLayout.NORTH);
+        content.add(niceScroll(reportArea), BorderLayout.CENTER);
+
+        d.add(content, BorderLayout.CENTER);
+        d.add(footerRight(generateBtn), BorderLayout.SOUTH);
+        d.setVisible(true);
     }
 
     public static void main(String[] args) {
