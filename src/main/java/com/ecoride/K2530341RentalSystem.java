@@ -16,13 +16,14 @@ import java.time.format.DateTimeParseException;
  * OOP: Composition, encapsulation.
  */
 public class K2530341RentalSystem {
-    private ArrayList<K2530341Vehicle> vehicles;
+    //Array list collection and HashMap for Fast Lookups
+    private ArrayList<K2530341Vehicle> vehicles; // Usage of a polymorphic collection // Composition
     private HashMap<String, K2530341Vehicle> vehicleMap; // Key: carId
-    private ArrayList<K2530341Customer> customers;
+    private ArrayList<K2530341Customer> customers; // Usage of a polymorphic collection // Composition
     private HashMap<String, K2530341Customer> customerMap; // Key: nicOrPassport
-    private ArrayList<K2530341Booking> bookings;
+    private ArrayList<K2530341Booking> bookings; // Usage of a polymorphic collection // Composition
     private HashMap<String, K2530341Booking> bookingMap; // Key: bookingId
-    private K2530341AuthSystem authSystem;
+    private K2530341AuthSystem authSystem; // Composition
 
     /** Prevents saveData() from running during load. */
     private boolean isLoadingData = false;
@@ -231,7 +232,7 @@ public class K2530341RentalSystem {
     public void addVehicle(K2530341Vehicle vehicle) {
         vehicles.add(vehicle);
         vehicleMap.put(vehicle.getCarId(), vehicle);
-        if (!isLoadingData) saveData(); // Persist after add, unless loading
+        if (!isLoadingData) saveData(); // After adding, save it also — unless we are loading time.
     }
 
     public K2530341Vehicle getVehicle(String carId) {
@@ -384,18 +385,19 @@ public class K2530341RentalSystem {
         return authSystem;
     }
 
-    public boolean registerUser(String username, String password, String role, String employeeId) {
+    public String registerUser(String username, String password, String role, String employeeId) {
         return authSystem.registerUser(username, password, role, employeeId);
     }
 
-    public boolean registerCustomer(String username, String password, String nic, String name, String contact, String email) {
-        if (authSystem.registerCustomer(username, password, nic, name, contact, email)) {
+    public String registerCustomer(String username, String password, String nic, String name, String contact, String email) {
+        String error = authSystem.registerCustomer(username, password, nic, name, contact, email);
+        if (error == null) {
             // Also create customer record
             K2530341Customer customer = new K2530341Customer(nic, name, contact, email);
             registerCustomer(customer);
-            return true;
+            return null; // Success
         }
-        return false;
+        return error;
     }
 
     public K2530341User loginUser(String username, String password) {
@@ -432,5 +434,14 @@ public class K2530341RentalSystem {
             }
         }
         return customerBookings;
+    }
+
+    // ------------ Load Test ------------
+    /**
+     * Run a load test with synthetic data.
+     * Generates customers, vehicles, and bookings, then measures performance.
+     */
+    public void runLoadTest(int numCustomers, int numVehicles, int numBookings) {
+        K2530341LoadTest.runLoadTest(this, numCustomers, numVehicles, numBookings);
     }
 }

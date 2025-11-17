@@ -1,0 +1,56 @@
+function calculateTotalFee(booking, actualKm):
+    category = booking.vehicle.category
+    days = booking.getNumberOfDays()
+    
+    // Step 1: Calculate base price
+    dailyRate = getDailyRate(category)
+    basePrice = dailyRate × days
+    
+    // Step 2: Apply long-term discount
+    if days ≥ 7:
+        discount = basePrice × 0.10
+        basePrice = basePrice - discount
+    
+    // Step 3: Calculate extra km charges
+    freeKm = getFreeKmForCategory(category)
+    totalFreeKm = freeKm × days
+    extraKm = max(0, actualKm - totalFreeKm)
+    extraKmRate = getExtraKmRateForCategory(category)
+    extraKmCharge = extraKm × extraKmRate
+    
+    // Step 4: Calculate tax
+    subtotal = basePrice + extraKmCharge
+    taxRate = getTaxRateForCategory(category)
+    tax = subtotal × taxRate
+    
+    // Step 5: Add deposit
+    total = subtotal + tax + 5000
+    
+    return total
+
+
+function searchVehicles(rentalSystem, category, maxPrice, startDate, endDate, status, keyword):
+    allVehicles = rentalSystem.getAllVehicles()
+    results = empty list
+    
+    for each vehicle in allVehicles:
+        // Apply sequential filters with early termination
+        
+        if category specified and vehicle.category doesn't match:
+            continue to next vehicle
+            
+        if maxPrice > 0 and vehicle.price > maxPrice:
+            continue to next vehicle
+            
+        if status specified and vehicle.status != status:
+            continue to next vehicle
+            
+        if keyword specified and keyword not in vehicle.model:
+            continue to next vehicle
+            
+        if dates specified and vehicle not available for dates:
+            continue to next vehicle
+            
+        add vehicle to results
+    
+    return results

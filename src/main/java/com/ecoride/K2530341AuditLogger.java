@@ -16,7 +16,7 @@ public class K2530341AuditLogger {
     private static final DateTimeFormatter TIMESTAMP_FORMAT =
         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private K2530341AuditLogger() {
+    private K2530341AuditLogger() { // Private constructor
         // Initialize log file
         try {
             Path logPath = Paths.get(LOG_FILE);
@@ -29,9 +29,9 @@ public class K2530341AuditLogger {
         }
     }
 
-    /**
-     * Get singleton instance of audit logger
-     */
+    
+    //Get singleton instance of audit logger
+     
     public static synchronized K2530341AuditLogger getInstance() {
         if (instance == null) {
             instance = new K2530341AuditLogger();
@@ -40,6 +40,7 @@ public class K2530341AuditLogger {
     }
 
     /**
+     * All system operations are logged for security and debugging:
      * Log a system action
      */
     public void log(String user, String action, String details) {

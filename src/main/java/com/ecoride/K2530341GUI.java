@@ -17,8 +17,8 @@ public class K2530341GUI extends JFrame {
     private static class Palette {
         // Main brand colors
         static final Color PRIMARY = new Color(16, 185, 129);      // Nice green for eco theme
-        static final Color PRIMARY_DARK = new Color(5, 150, 105);  // Darker green for buttons
-        static final Color SECONDARY = new Color(59, 130, 246);    // Blue for secondary stuff
+        //static final Color PRIMARY_DARK = new Color(5, 150, 105);  // Darker green for buttons
+        //static final Color SECONDARY = new Color(59, 130, 246);    // Blue for secondary stuff
 
         // Colors for different message types
         static final Color SUCCESS = new Color(34, 197, 94);       // Green for good news
@@ -36,12 +36,12 @@ public class K2530341GUI extends JFrame {
         static final Color TEXT_SECONDARY = new Color(203, 213, 225); // Secondary text
         static final Color TEXT_MUTED = new Color(148, 163, 184);  // Muted text
         static final Color TEXT_ACCENT = new Color(52, 211, 153);  // Bright green accents
-        static final Color YELLOWISH_GREEN = new Color(171, 227, 56);  // Extra green
+        //static final Color YELLOWISH_GREEN = new Color(171, 227, 56);  // Extra green
 
 
         // Borders and dividers
         static final Color BORDER = new Color(71, 85, 105);        // Border color
-        static final Color DIVIDER = new Color(51, 65, 85);        // Divider lines
+        //static final Color DIVIDER = new Color(51, 65, 85);        // Divider lines
 
         // Button styling
         static final Color BTN_NEUTRAL_BG = new Color(71, 85, 105);
@@ -169,19 +169,19 @@ public class K2530341GUI extends JFrame {
                 return;
             }
 
-            boolean success;
+            String error;
             if ("Customer".equals(selectedRole)) {
-                success = rentalSystem.registerCustomer(userEmail, pass, nicValue, nameValue, contactValue, userEmail);
+                error = rentalSystem.registerCustomer(userEmail, pass, nicValue, nameValue, contactValue, userEmail);
             } else {
-                success = rentalSystem.registerUser(userEmail, pass, selectedRole, empId);
+                error = rentalSystem.registerUser(userEmail, pass, selectedRole, empId);
             }
 
-            if (success) {
+            if (error == null) {
                 JOptionPane.showMessageDialog(regDialog, "Registration successful! Please login.");
                 regDialog.dispose();
                 showLoginDialog();
             } else {
-                warn(regDialog, "Registration failed. Email may exist or invalid Employee ID.");
+                warn(regDialog, "Registration failed: " + error);
             }
         });
 
@@ -912,221 +912,223 @@ public class K2530341GUI extends JFrame {
         d.add(footerRight(add), BorderLayout.SOUTH);
         d.setVisible(true);
     }
+private void makeBookingDialog(JTextArea out) {
+    JDialog d = modal("Make New Booking", 800, 700);
+    d.setLayout(new BorderLayout(16, 16));
 
-    private void makeBookingDialog(JTextArea out) {
-        JDialog d = modal("Make New Booking", 800, 700);
-        d.setLayout(new BorderLayout(16, 16));
+    JPanel formPanel = new JPanel(new BorderLayout(12, 12));
+    formPanel.setBackground(Palette.BG_CARD);
 
-        JPanel formPanel = new JPanel(new BorderLayout(12, 12));
-        formPanel.setBackground(Palette.BG_CARD);
+    JPanel f = formGrid(6);
+    JTextField nic = tf(), start = tf("YYYY-MM-DD"), end = tf("YYYY-MM-DD"), km = tf();
 
-        JPanel f = formGrid(6);
-        JTextField nic = tf(), start = tf("YYYY-MM-DD"), end = tf("YYYY-MM-DD"), km = tf();
-
-        // Pre-fill NIC for customers
-        if (currentUser != null && !currentUser.isAdmin()) {
-            nic.setText(currentUser.getNicOrPassport());
-            nic.setEditable(false);
-        }
-
-        // Generate next unique booking ID
-        String nextBookingId = generateNextBookingId();
-
-        // Create vehicle dropdown with available vehicles
-        java.util.List<String> vehicleOptions = new java.util.ArrayList<>();
-        for (K2530341Vehicle v : rentalSystem.getAllVehicles()) {
-            if (v.isAvailable()) {
-                vehicleOptions.add(v.getCarId() + " - " + v.getModel() + " (" + v.getCategory() + ")");
-            }
-        }
-        JComboBox<String> vehicleCombo = new JComboBox<>(vehicleOptions.toArray(new String[0]));
-        vehicleCombo.setBackground(Palette.BG_LIGHT);
-        vehicleCombo.setForeground(Palette.TEXT_PRIMARY);
-        vehicleCombo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        vehicleCombo.setMaximumRowCount(5); // Make dropdown scrollable
-
-        f.add(label("Generated Booking ID:")); f.add(label(nextBookingId)); // Display generated ID
-        f.add(label("Customer NIC:")); f.add(nic);
-        f.add(label("Vehicle:")); f.add(vehicleCombo);
-        f.add(label("Start Date:")); f.add(start);
-        f.add(label("End Date:")); f.add(end);
-        f.add(label("Total KM:")); f.add(km);
-
-        formPanel.add(f, BorderLayout.NORTH);
-
-        // Cost breakdown panel
-        JPanel costPanel = card("Estimated Cost Breakdown");
-        JTextArea costBreakdown = new JTextArea(12, 50);
-        costBreakdown.setEditable(false);
-        costBreakdown.setFont(new Font("Consolas", Font.PLAIN, 12));
-        costBreakdown.setBackground(Palette.BG_LIGHT);
-        costBreakdown.setForeground(Palette.TEXT_PRIMARY);
-        costBreakdown.setText("Select a vehicle and enter details to see cost breakdown...");
-        costPanel.add(niceScroll(costBreakdown), BorderLayout.CENTER);
-
-        // Add Calculate button
-        JButton calculateBtn = neutralButton("Calculate Cost");
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 8));
-        buttonPanel.setBackground(Palette.BG_CARD);
-        buttonPanel.add(calculateBtn);
-
-        formPanel.add(costPanel, BorderLayout.CENTER);
-        formPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        // Update cost breakdown when inputs change
-        Runnable updateCostBreakdown = () -> {
-            try {
-                String selectedVehicle = (String) vehicleCombo.getSelectedItem();
-                if (selectedVehicle == null) {
-                    costBreakdown.setText("Please select a vehicle...");
-                    return;
-                }
-
-                String vehicleId = selectedVehicle.split(" - ")[0];
-                K2530341Vehicle vehicle = rentalSystem.getVehicle(vehicleId);
-                if (vehicle == null) {
-                    costBreakdown.setText("Vehicle not found...");
-                    return;
-                }
-
-                String startText = start.getText().trim();
-                String endText = end.getText().trim();
-                String kmText = km.getText().trim();
-
-                if (startText.isEmpty() || endText.isEmpty() || kmText.isEmpty()) {
-                    costBreakdown.setText("Please fill in all date and mileage fields...");
-                    return;
-                }
-
-                LocalDate startDate = LocalDate.parse(startText);
-                LocalDate endDate = LocalDate.parse(endText);
-                int totalKm = Integer.parseInt(kmText);
-
-                long days = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
-                if (days <= 0) {
-                    costBreakdown.setText("Invalid date range...");
-                    return;
-                }
-
-                // Calculate costs
-                String category = vehicle.getCategory();
-                double dailyRate = K2530341FeeCalculator.getDailyRate(category);
-                double basePrice = dailyRate * days;
-                double discount = (days >= 7) ? basePrice * 0.10 : 0;
-                double discountedBase = basePrice - discount;
-
-                int freeKm = K2530341FeeCalculator.getFreeKmForCategory(category);
-                int totalFreeKm = freeKm * (int)days;
-                int extraKm = Math.max(0, totalKm - totalFreeKm);
-                double extraKmRate = K2530341FeeCalculator.getExtraKmRateForCategory(category);
-                double extraKmCharge = extraKm * extraKmRate;
-
-                double subtotal = discountedBase + extraKmCharge;
-                double taxRate = K2530341FeeCalculator.getTaxRateForCategory(category);
-                double tax = subtotal * taxRate;
-                double deposit = K2530341FeeCalculator.getDeposit();
-                double total = subtotal + tax + deposit;
-
-                StringBuilder breakdown = new StringBuilder();
-                breakdown.append("=== ESTIMATED COST BREAKDOWN ===\n\n");
-                breakdown.append(String.format("Vehicle: %s (%s)\n", vehicle.getModel(), category));
-                breakdown.append(String.format("Rental Period: %d days (%s to %s)\n\n",
-                    days, startDate, endDate));
-
-                breakdown.append("BASE CHARGES:\n");
-                breakdown.append(String.format("Daily Rate: LKR %.2f\n", dailyRate));
-                breakdown.append(String.format("Base Price (%d days): LKR %.2f\n", days, basePrice));
-                if (discount > 0) {
-                    breakdown.append(String.format("Long-term Discount (10%%): -LKR %.2f\n", discount));
-                    breakdown.append(String.format("Discounted Base: LKR %.2f\n\n", discountedBase));
-                } else {
-                    breakdown.append("\n");
-                }
-
-                breakdown.append("MILEAGE CHARGES:\n");
-                breakdown.append(String.format("Free Km per Day: %d km\n", freeKm));
-                breakdown.append(String.format("Total Free Km: %d km\n", totalFreeKm));
-                breakdown.append(String.format("Total Km Driven: %d km\n", totalKm));
-                breakdown.append(String.format("Extra Km: %d km\n", extraKm));
-                breakdown.append(String.format("Extra Km Rate: LKR %.2f per km\n", extraKmRate));
-                breakdown.append(String.format("Extra Km Charge: LKR %.2f\n\n", extraKmCharge));
-
-                breakdown.append("TAXES & FEES:\n");
-                breakdown.append(String.format("Subtotal (before tax): LKR %.2f\n", subtotal));
-                breakdown.append(String.format("Tax Rate: %.1f%%\n", taxRate * 100));
-                breakdown.append(String.format("Tax Amount: LKR %.2f\n", tax));
-                breakdown.append(String.format("Refundable Deposit: LKR %.2f\n\n", deposit));
-
-                breakdown.append(String.format("TOTAL ESTIMATED COST: LKR %.2f\n", total));
-                breakdown.append("\nNote: Final charges may vary based on actual usage.");
-
-                costBreakdown.setText(breakdown.toString());
-
-            } catch (Exception e) {
-                costBreakdown.setText("Error calculating costs. Please check your inputs...");
-            }
-        };
-
-        // Calculate button action
-        calculateBtn.addActionListener(e -> updateCostBreakdown.run());
-
-        // Initial cost update
-        if (vehicleCombo.getItemCount() > 0) {
-            updateCostBreakdown.run();
-        }
-
-        JButton book = primaryButton("Create Booking");
-        book.addActionListener(e -> {
-            try {
-                K2530341Customer c = rentalSystem.getCustomer(nic.getText().trim());
-                // Extract vehicle ID from the selected combo box item
-                String selectedVehicle = (String) vehicleCombo.getSelectedItem();
-                if (selectedVehicle == null) {
-                    warn(d, "Please select a vehicle.");
-                    return;
-                }
-                String vehicleId = selectedVehicle.split(" - ")[0]; // Get the ID part before " - "
-                K2530341Vehicle v = rentalSystem.getVehicle(vehicleId);
-                if (c == null) { warn(d, "Customer not found."); return; }
-                if (v == null) { warn(d, "Vehicle not found."); return; }
-
-                LocalDate s = LocalDate.parse(start.getText().trim());
-                LocalDate en = LocalDate.parse(end.getText().trim());
-                int totalKm = Integer.parseInt(km.getText().trim());
-
-                // Specific validation checks for better error messages
-                LocalDate today = LocalDate.now();
-                if (!v.isAvailable()) {
-                    warn(d, "Vehicle is not available. Please choose another vehicle.");
-                    return;
-                }
-                if (!s.isAfter(today.plusDays(2))) {
-                    warn(d, "Booking must be made at least 3 days in advance. Please choose a later start date.");
-                    return;
-                }
-                if (s.isAfter(en)) {
-                    warn(d, "Start date cannot be after end date.");
-                    return;
-                }
-
-                K2530341Booking b = new K2530341Booking(nextBookingId, c, v, s, en, totalKm);
-                if (rentalSystem.makeBooking(b)) {
-                    out.setText("[SUCCESS] Booking successful!\n\n" + b);
-                    d.dispose();
-                } else {
-                    warn(d, "Booking failed due to an unexpected error.");
-                }
-            } catch (DateTimeParseException ex) {
-                warn(d, "Invalid date format. Please use YYYY-MM-DD.");
-            } catch (NumberFormatException ex) {
-                warn(d, "Invalid KM value. Please enter a whole number.");
-            }
-        });
-
-        d.add(formPanel, BorderLayout.CENTER);
-        d.add(footerRight(book), BorderLayout.SOUTH);
-        d.setVisible(true);
+    // Pre-fill NIC for customers
+    if (currentUser != null && !currentUser.isAdmin()) {
+        nic.setText(currentUser.getNicOrPassport());
+        nic.setEditable(false);
     }
+
+    // Generate next unique booking ID
+    String nextBookingId = generateNextBookingId();
+
+    // Create vehicle dropdown with available vehicles
+    java.util.List<String> vehicleOptions = new java.util.ArrayList<>();
+    for (K2530341Vehicle v : rentalSystem.getAllVehicles()) {
+        if (v.isAvailable()) {
+            vehicleOptions.add(v.getCarId() + " - " + v.getModel() + " (" + v.getCategory() + ")");
+        }
+    }
+    JComboBox<String> vehicleCombo = new JComboBox<>(vehicleOptions.toArray(new String[0]));
+    vehicleCombo.setBackground(Palette.BG_LIGHT);
+    vehicleCombo.setForeground(Palette.TEXT_PRIMARY);
+    vehicleCombo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    vehicleCombo.setMaximumRowCount(5); // Make dropdown scrollable
+
+    f.add(label("Generated Booking ID:")); f.add(label(nextBookingId)); // Display generated ID
+    f.add(label("Customer NIC:")); f.add(nic);
+    f.add(label("Vehicle:")); f.add(vehicleCombo);
+    f.add(label("Start Date:")); f.add(start);
+    f.add(label("End Date:")); f.add(end);
+    f.add(label("Total KM:")); f.add(km);
+
+    formPanel.add(f, BorderLayout.NORTH);
+
+    // Cost breakdown panel
+    JPanel costPanel = card("Estimated Cost Breakdown");
+    JTextArea costBreakdown = new JTextArea(12, 50);
+    costBreakdown.setEditable(false);
+    costBreakdown.setFont(new Font("Consolas", Font.PLAIN, 12));
+    costBreakdown.setBackground(Palette.BG_LIGHT);
+    costBreakdown.setForeground(Palette.TEXT_PRIMARY);
+    costBreakdown.setText("Select a vehicle and enter details to see cost breakdown...");
+    costPanel.add(niceScroll(costBreakdown), BorderLayout.CENTER);
+
+    // Add Calculate button (we'll place it in the bottom bar later)
+    JButton calculateBtn = neutralButton("Calculate Cost");
+
+    formPanel.add(costPanel, BorderLayout.CENTER);
+
+    // Update cost breakdown when inputs change
+    Runnable updateCostBreakdown = () -> {
+        try {
+            String selectedVehicle = (String) vehicleCombo.getSelectedItem();
+            if (selectedVehicle == null) {
+                costBreakdown.setText("Please select a vehicle...");
+                return;
+            }
+
+            String vehicleId = selectedVehicle.split(" - ")[0];
+            K2530341Vehicle vehicle = rentalSystem.getVehicle(vehicleId);
+            if (vehicle == null) {
+                costBreakdown.setText("Vehicle not found...");
+                return;
+            }
+
+            String startText = start.getText().trim();
+            String endText = end.getText().trim();
+            String kmText = km.getText().trim();
+
+            if (startText.isEmpty() || endText.isEmpty() || kmText.isEmpty()) {
+                costBreakdown.setText("Please fill in all date and mileage fields...");
+                return;
+            }
+
+            LocalDate startDate = LocalDate.parse(startText);
+            LocalDate endDate = LocalDate.parse(endText);
+            int totalKm = Integer.parseInt(kmText);
+
+            long days = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1;
+            if (days <= 0) {
+                costBreakdown.setText("Invalid date range...");
+                return;
+            }
+
+            // Calculate costs
+            String category = vehicle.getCategory();
+            double dailyRate = K2530341FeeCalculator.getDailyRate(category);
+            double basePrice = dailyRate * days;
+            double discount = (days >= 7) ? basePrice * 0.10 : 0;
+            double discountedBase = basePrice - discount;
+
+            int freeKm = K2530341FeeCalculator.getFreeKmForCategory(category);
+            int totalFreeKm = freeKm * (int)days;
+            int extraKm = Math.max(0, totalKm - totalFreeKm);
+            double extraKmRate = K2530341FeeCalculator.getExtraKmRateForCategory(category);
+            double extraKmCharge = extraKm * extraKmRate;
+
+            double subtotal = discountedBase + extraKmCharge;
+            double taxRate = K2530341FeeCalculator.getTaxRateForCategory(category);
+            double tax = subtotal * taxRate;
+            double deposit = K2530341FeeCalculator.getDeposit();
+            double total = subtotal + tax + deposit;
+
+            StringBuilder breakdown = new StringBuilder();
+            breakdown.append("=== ESTIMATED COST BREAKDOWN ===\n\n");
+            breakdown.append(String.format("Vehicle: %s (%s)\n", vehicle.getModel(), category));
+            breakdown.append(String.format("Rental Period: %d days (%s to %s)\n\n",
+                days, startDate, endDate));
+
+            breakdown.append("BASE CHARGES:\n");
+            breakdown.append(String.format("Daily Rate: LKR %.2f\n", dailyRate));
+            breakdown.append(String.format("Base Price (%d days): LKR %.2f\n", days, basePrice));
+            if (discount > 0) {
+                breakdown.append(String.format("Long-term Discount (10%%): -LKR %.2f\n", discount));
+                breakdown.append(String.format("Discounted Base: LKR %.2f\n\n", discountedBase));
+            } else {
+                breakdown.append("\n");
+            }
+
+            breakdown.append("MILEAGE CHARGES:\n");
+            breakdown.append(String.format("Free Km per Day: %d km\n", freeKm));
+            breakdown.append(String.format("Total Free Km: %d km\n", totalFreeKm));
+            breakdown.append(String.format("Total Km Driven: %d km\n", totalKm));
+            breakdown.append(String.format("Extra Km: %d km\n", extraKm));
+            breakdown.append(String.format("Extra Km Rate: LKR %.2f per km\n", extraKmRate));
+            breakdown.append(String.format("Extra Km Charge: LKR %.2f\n\n", extraKmCharge));
+
+            breakdown.append("TAXES & FEES:\n");
+            breakdown.append(String.format("Subtotal (before tax): LKR %.2f\n", subtotal));
+            breakdown.append(String.format("Tax Rate: %.1f%%\n", taxRate * 100));
+            breakdown.append(String.format("Tax Amount: LKR %.2f\n", tax));
+            breakdown.append(String.format("Refundable Deposit: LKR %.2f\n\n", deposit));
+
+            breakdown.append(String.format("TOTAL ESTIMATED COST: LKR %.2f\n", total));
+            breakdown.append("\nNote: Final charges may vary based on actual usage.");
+
+            costBreakdown.setText(breakdown.toString());
+
+        } catch (Exception e) {
+            costBreakdown.setText("Error calculating costs. Please check your inputs...");
+        }
+    };
+
+    // Calculate button action
+    calculateBtn.addActionListener(e -> updateCostBreakdown.run());
+
+    // Initial cost update
+    if (vehicleCombo.getItemCount() > 0) {
+        updateCostBreakdown.run();
+    }
+
+    JButton book = primaryButton("Create Booking");
+    book.addActionListener(e -> {
+        try {
+            K2530341Customer c = rentalSystem.getCustomer(nic.getText().trim());
+            // Extract vehicle ID from the selected combo box item
+            String selectedVehicle = (String) vehicleCombo.getSelectedItem();
+            if (selectedVehicle == null) {
+                warn(d, "Please select a vehicle.");
+                return;
+            }
+            String vehicleId = selectedVehicle.split(" - ")[0]; // Get the ID part before " - "
+            K2530341Vehicle v = rentalSystem.getVehicle(vehicleId);
+            if (c == null) { warn(d, "Customer not found."); return; }
+            if (v == null) { warn(d, "Vehicle not found."); return; }
+
+            LocalDate s = LocalDate.parse(start.getText().trim());
+            LocalDate en = LocalDate.parse(end.getText().trim());
+            int totalKm = Integer.parseInt(km.getText().trim());
+
+            // Specific validation checks for better error messages
+            LocalDate today = LocalDate.now();
+            if (!v.isAvailable()) {
+                warn(d, "Vehicle is not available. Please choose another vehicle.");
+                return;
+            }
+            if (!s.isAfter(today.plusDays(2))) {
+                warn(d, "Booking must be made at least 3 days in advance. Please choose a later start date.");
+                return;
+            }
+            if (s.isAfter(en)) {
+                warn(d, "Start date cannot be after end date.");
+                return;
+            }
+
+            K2530341Booking b = new K2530341Booking(nextBookingId, c, v, s, en, totalKm);
+            if (rentalSystem.makeBooking(b)) {
+                out.setText("[SUCCESS] Booking successful!\n\n" + b);
+                d.dispose();
+            } else {
+                warn(d, "Booking failed due to an unexpected error.");
+            }
+        } catch (DateTimeParseException ex) {
+            warn(d, "Invalid date format. Please use YYYY-MM-DD.");
+        } catch (NumberFormatException ex) {
+            warn(d, "Invalid KM value. Please enter a whole number.");
+        }
+    });
+
+    // Bottom bar with both buttons at the bottom of the dialog
+    JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 8));
+    bottomBar.setBackground(Palette.BG_CARD);
+    bottomBar.add(calculateBtn);
+    bottomBar.add(book);
+
+    d.add(formPanel, BorderLayout.CENTER);
+    d.add(bottomBar, BorderLayout.SOUTH);
+
+    d.setVisible(true);
+}
 
     private void searchBookingsDialog(JTextArea out) {
         String input = JOptionPane.showInputDialog(this, "Enter Customer Name or Date (YYYY-MM-DD):");

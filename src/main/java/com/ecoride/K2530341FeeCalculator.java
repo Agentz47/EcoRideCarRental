@@ -41,6 +41,7 @@ public class K2530341FeeCalculator {
      * Calculate total fee for a booking with actual kilometers driven
      */
     public static double calculateTotalFee(K2530341Booking booking, int actualKm) {
+         // Implementation details hidden from callers
         String category = booking.getVehicle().getCategory();
         long days = booking.getNumberOfDays();
 
@@ -155,6 +156,7 @@ public class K2530341FeeCalculator {
      * Generate detailed fee breakdown
      */
     public static String generateFeeBreakdown(K2530341Booking booking, int actualKm) {
+        // Detailed calculation breakdown provided
         String category = booking.getVehicle().getCategory();
         long days = booking.getNumberOfDays();
 

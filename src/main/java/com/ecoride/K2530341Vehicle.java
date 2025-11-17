@@ -35,6 +35,7 @@ public class K2530341Vehicle {
 
     public String getAvailabilityStatus() { return availabilityStatus; }
     public void setAvailabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; }
+    // Private fields, controlled access through getters/setters
 
     // Method to check if available for booking
     public boolean isAvailable() {
@@ -52,3 +53,5 @@ public class K2530341Vehicle {
                 '}';
     }
 }
+
+

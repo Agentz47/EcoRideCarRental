@@ -86,28 +86,42 @@ public class K2530341AuthSystem {
     }
 
     // Register a new user
-    public boolean registerUser(String username, String password, String role, String employeeId) {
+    public String registerUser(String username, String password, String role, String employeeId) {
         if (users.containsKey(username)) {
-            return false; // Username exists
+            return "Username already exists.";
         }
-        if ("Admin".equals(role) && !validEmployeeIds.contains(employeeId)) {
-            return false; // Invalid employee ID
+        if ("Admin".equals(role)) {
+            if (!validEmployeeIds.contains(employeeId)) {
+                return "Invalid Employee ID.";
+            }
+            // Check if employee ID is already in use
+            for (K2530341User existing : users.values()) {
+                if (employeeId.equals(existing.getEmployeeId())) {
+                    return "Employee ID already in use.";
+                }
+            }
         }
         K2530341User user = new K2530341User(username, password, role, employeeId);
         users.put(username, user);
         saveUsers();
-        return true;
+        return null; // Success
     }
 
     // Register a customer with NIC
-    public boolean registerCustomer(String username, String password, String nic, String name, String contact, String email) {
+    public String registerCustomer(String username, String password, String nic, String name, String contact, String email) {
         if (users.containsKey(username)) {
-            return false; // Username exists
+            return "Username already exists.";
+        }
+        // Check if NIC is already in use
+        for (K2530341User existing : users.values()) {
+            if (nic.equals(existing.getNicOrPassport())) {
+                return "NIC already exists.";
+            }
         }
         K2530341User user = new K2530341User(username, password, "Customer", "", nic);
         users.put(username, user);
         saveUsers();
-        return true;
+        return null; // Success
     }
 
     // Login user
